@@ -40,7 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -48,7 +47,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import cl.duoc.ferresenas.data.Producto
 import cl.duoc.ferresenas.data.SesionActual
-import cl.duoc.ferresenas.ui.theme.AzulConfianza
 import cl.duoc.ferresenas.ui.theme.NaranjoFerreteria
 
 private data class ItemMenuInferior(val etiqueta: String, val icono: androidx.compose.ui.graphics.vector.ImageVector)
@@ -111,7 +109,7 @@ private fun EncabezadoInicio() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Brush.horizontalGradient(listOf(NaranjoFerreteria, AzulConfianza)))
+            .background(NaranjoFerreteria)
             .statusBarsPadding()
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically

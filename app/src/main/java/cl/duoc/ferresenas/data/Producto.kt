@@ -12,18 +12,9 @@ data class Producto(
     val categoria: String,
     val unidadesMedida: List<String>,
     val descripcion: String,
-    /**
-     * Nombre del archivo de imagen (sin extensión) que debe existir en
-     * app/src/main/res/drawable/. Si el archivo no existe todavía, la
-     * tarjeta del producto muestra el [emoji] como respaldo automático.
-     */
     val imagenNombre: String
 )
 
-/**
- * Catálogo de ejemplo de una ferretería, usado para construir mensajes
- * visuales que el cliente sordo/hipoacúsico puede mostrar al vendedor.
- */
 object CatalogoProductos {
     const val CATEGORIA_TODOS = "Todos"
 
@@ -90,7 +81,7 @@ data class MensajeHistorial(
     val fechaHora: String
 )
 
-/** Historial de mensajes visuales generados durante la sesión actual. */
+/** Historial de mensajes visuales generados durante la sesión. */
 object RepositorioMensajes {
     private val formato = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "CL"))
 
