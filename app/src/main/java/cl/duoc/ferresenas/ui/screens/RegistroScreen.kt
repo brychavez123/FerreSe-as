@@ -14,7 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -242,7 +242,7 @@ fun RegistroScreen(
                 Text("Correo", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelLarge)
                 Text("Preferencia", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelLarge)
             }
-            Divider(modifier = Modifier.padding(vertical = 4.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
             RepositorioUsuarios.usuarios.forEach { usuario ->
                 Row(
                     modifier = Modifier
