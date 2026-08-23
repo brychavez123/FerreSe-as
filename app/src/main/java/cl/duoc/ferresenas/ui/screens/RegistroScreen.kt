@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -15,7 +14,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -231,33 +229,6 @@ fun RegistroScreen(
 
         TextButton(onClick = onVolverLogin) {
             Text("Ya tengo cuenta, volver al inicio de sesión")
-        }
-
-        // Tabla: usuarios ya registrados
-        if (RepositorioUsuarios.usuarios.isNotEmpty()) {
-            Text(
-                "Usuarios registrados",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(top = 24.dp, bottom = 8.dp)
-            )
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text("Nombre", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelLarge)
-                Text("Correo", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelLarge)
-                Text("Preferencia", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelLarge)
-            }
-            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-            RepositorioUsuarios.usuarios.forEach { usuario ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(36.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(usuario.nombre, modifier = Modifier.weight(1f))
-                    Text(usuario.correo, modifier = Modifier.weight(1f))
-                    Text(usuario.preferenciaComunicacion.name, modifier = Modifier.weight(1f))
-                }
-            }
         }
     }
 }
