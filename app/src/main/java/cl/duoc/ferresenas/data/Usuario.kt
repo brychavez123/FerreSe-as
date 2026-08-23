@@ -37,4 +37,16 @@ object RepositorioUsuarios {
 
     fun validarCredenciales(correo: String, contrasena: String): Boolean =
         usuarios.any { it.correo.equals(correo, ignoreCase = true) && it.contrasena == contrasena }
+
+    fun buscarPorCorreo(correo: String): Usuario? =
+        usuarios.find { it.correo.equals(correo, ignoreCase = true) }
+}
+
+/** Usuario con sesión activa en la app (nulo si nadie ha iniciado sesión). */
+object SesionActual {
+    var usuarioActual: Usuario? = null
+
+    fun cerrarSesion() {
+        usuarioActual = null
+    }
 }

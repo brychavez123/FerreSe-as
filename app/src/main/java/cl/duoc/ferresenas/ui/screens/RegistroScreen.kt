@@ -1,5 +1,6 @@
 package cl.duoc.ferresenas.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,12 +32,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import cl.duoc.ferresenas.data.PreferenciaComunicacion
 import cl.duoc.ferresenas.data.RepositorioUsuarios
+import cl.duoc.ferresenas.data.SesionActual
 import cl.duoc.ferresenas.data.Usuario
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,6 +54,7 @@ fun RegistroScreen(
     var aceptaTerminos by remember { mutableStateOf(false) }
     var recibirNotificaciones by remember { mutableStateOf(false) }
     var mensaje by remember { mutableStateOf<String?>(null) }
+    val contexto = LocalContext.current
 
     // Combo box: preferencia de comunicación
     var comboExpandido by remember { mutableStateOf(false) }
@@ -205,15 +209,16 @@ fun RegistroScreen(
                     !RepositorioUsuarios.hayCupoDisponible ->
                         "Se alcanzó el máximo de ${RepositorioUsuarios.CUPO_MAXIMO} usuarios registrados."
                     else -> {
-                        RepositorioUsuarios.registrar(
-                            Usuario(
-                                nombre = nombre,
-                                correo = correo,
-                                contrasena = contrasena,
-                                preferenciaComunicacion = preferenciaSeleccionada,
-                                recibirNotificaciones = recibirNotificaciones
-                            )
+                        val nuevoUsuario = Usuario(
+                            nombre = nombre,
+                            correo = correo,
+                            contrasena = contrasena,
+                            preferenciaComunicacion = preferenciaSeleccionada,
+                            recibirNotificaciones = recibirNotificaciones
                         )
+                        RepositorioUsuarios.registrar(nuevoUsuario)
+                        SesionActual.usuarioActual = nuevoUsuario
+                        Toast.makeText(contexto, "Cuenta creada. ¡Bienvenido/a $nombre!", Toast.LENGTH_SHORT).show()
                         onRegistroExitoso()
                         null
                     }

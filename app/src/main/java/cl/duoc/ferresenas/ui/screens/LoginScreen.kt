@@ -1,5 +1,6 @@
 package cl.duoc.ferresenas.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,10 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import cl.duoc.ferresenas.data.RepositorioUsuarios
+import cl.duoc.ferresenas.data.SesionActual
 
 @Composable
 fun LoginScreen(
@@ -40,6 +43,7 @@ fun LoginScreen(
     var contrasena by remember { mutableStateOf("") }
     var recordarme by remember { mutableStateOf(false) }
     var mensajeError by remember { mutableStateOf<String?>(null) }
+    val contexto = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -110,11 +114,14 @@ fun LoginScreen(
         // Botón principal
         Button(
             onClick = {
-                mensajeError = if (RepositorioUsuarios.validarCredenciales(correo, contrasena)) {
+                if (RepositorioUsuarios.validarCredenciales(correo, contrasena)) {
+                    SesionActual.usuarioActual = RepositorioUsuarios.buscarPorCorreo(correo)
+                    mensajeError = null
+                    Toast.makeText(contexto, "¡Bienvenido/a de nuevo!", Toast.LENGTH_SHORT).show()
                     onLoginExitoso()
-                    null
                 } else {
-                    "Correo o contraseña incorrectos. Verifica tus datos o regístrate."
+                    mensajeError = "Correo o contraseña incorrectos. Verifica tus datos o regístrate."
+                    Toast.makeText(contexto, mensajeError, Toast.LENGTH_SHORT).show()
                 }
             },
             modifier = Modifier
