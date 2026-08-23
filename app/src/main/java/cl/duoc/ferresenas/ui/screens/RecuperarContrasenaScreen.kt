@@ -43,8 +43,8 @@ fun RecuperarContrasenaScreen(
         OutlinedTextField(
             value = correo,
             onValueChange = { correo = it },
-            label = { Text("Usuario") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            label = { Text("Correo electrónico") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )

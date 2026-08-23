@@ -89,8 +89,8 @@ fun RegistroScreen(
         OutlinedTextField(
             value = correo,
             onValueChange = { correo = it },
-            label = { Text("Usuario") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            label = { Text("Correo electrónico") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -206,8 +206,6 @@ fun RegistroScreen(
                         "Debes aceptar los términos y condiciones."
                     RepositorioUsuarios.existeCorreo(correo) ->
                         "Ese correo ya está registrado."
-                    !RepositorioUsuarios.hayCupoDisponible ->
-                        "Se alcanzó el máximo de ${RepositorioUsuarios.CUPO_MAXIMO} usuarios registrados."
                     else -> {
                         val nuevoUsuario = Usuario(
                             nombre = nombre,
@@ -228,7 +226,7 @@ fun RegistroScreen(
                 .fillMaxWidth()
                 .padding(top = 16.dp)
         ) {
-            Text("Registrar (${RepositorioUsuarios.usuarios.size}/${RepositorioUsuarios.CUPO_MAXIMO})")
+            Text("Registrar")
         }
 
         TextButton(onClick = onVolverLogin) {

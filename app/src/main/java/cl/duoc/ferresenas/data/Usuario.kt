@@ -16,28 +16,21 @@ data class Usuario(
 
 /**
  * Repositorio en memoria para el registro solicitado por la actividad:
- * arreglo con los datos de hasta 5 usuarios capturados en la vista de Registro.
+ * arreglo con los datos de los usuarios capturados en la vista de Registro.
  * Se precarga con 5 usuarios de prueba para poder iniciar sesión de inmediato
  * sin tener que registrarse primero.
  */
 object RepositorioUsuarios {
-    const val CUPO_MAXIMO = 5
-
     val usuarios = mutableStateListOf(
-        Usuario("Ana Torres", "ana", "1234", PreferenciaComunicacion.ESCRIBIR, true),
-        Usuario("Carlos Pérez", "carlos", "1234", PreferenciaComunicacion.HABLAR, false),
-        Usuario("María Soto", "maria", "1234", PreferenciaComunicacion.AMBAS, true),
-        Usuario("Luis Rojas", "luis", "1234", PreferenciaComunicacion.ESCRIBIR, false),
-        Usuario("Sofía Díaz", "sofia", "1234", PreferenciaComunicacion.HABLAR, true)
+        Usuario("Valentina Muñoz", "valentina@ferresenas.cl", "1234", PreferenciaComunicacion.ESCRIBIR, true),
+        Usuario("Roberto Fernández", "roberto@ferresenas.cl", "1234", PreferenciaComunicacion.HABLAR, false),
+        Usuario("Camila Reyes", "camila@ferresenas.cl", "1234", PreferenciaComunicacion.AMBAS, true),
+        Usuario("Diego Castro", "diego@ferresenas.cl", "1234", PreferenciaComunicacion.ESCRIBIR, false),
+        Usuario("Javiera Morales", "javiera@ferresenas.cl", "1234", PreferenciaComunicacion.HABLAR, true)
     )
 
-    val hayCupoDisponible: Boolean
-        get() = usuarios.size < CUPO_MAXIMO
-
-    fun registrar(usuario: Usuario): Boolean {
-        if (!hayCupoDisponible) return false
+    fun registrar(usuario: Usuario) {
         usuarios.add(usuario)
-        return true
     }
 
     fun existeCorreo(correo: String): Boolean =
