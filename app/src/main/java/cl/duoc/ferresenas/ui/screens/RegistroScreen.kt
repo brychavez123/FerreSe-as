@@ -89,8 +89,8 @@ fun RegistroScreen(
         OutlinedTextField(
             value = correo,
             onValueChange = { correo = it },
-            label = { Text("Correo electrónico") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            label = { Text("Usuario") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()

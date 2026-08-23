@@ -17,11 +17,19 @@ data class Usuario(
 /**
  * Repositorio en memoria para el registro solicitado por la actividad:
  * arreglo con los datos de hasta 5 usuarios capturados en la vista de Registro.
+ * Se precarga con 5 usuarios de prueba para poder iniciar sesión de inmediato
+ * sin tener que registrarse primero.
  */
 object RepositorioUsuarios {
     const val CUPO_MAXIMO = 5
 
-    val usuarios = mutableStateListOf<Usuario>()
+    val usuarios = mutableStateListOf(
+        Usuario("Ana Torres", "ana", "1234", PreferenciaComunicacion.ESCRIBIR, true),
+        Usuario("Carlos Pérez", "carlos", "1234", PreferenciaComunicacion.HABLAR, false),
+        Usuario("María Soto", "maria", "1234", PreferenciaComunicacion.AMBAS, true),
+        Usuario("Luis Rojas", "luis", "1234", PreferenciaComunicacion.ESCRIBIR, false),
+        Usuario("Sofía Díaz", "sofia", "1234", PreferenciaComunicacion.HABLAR, true)
+    )
 
     val hayCupoDisponible: Boolean
         get() = usuarios.size < CUPO_MAXIMO
