@@ -10,7 +10,14 @@ data class Producto(
     val nombre: String,
     val emoji: String,
     val categoria: String,
-    val unidadesMedida: List<String>
+    val unidadesMedida: List<String>,
+    val descripcion: String,
+    /**
+     * Nombre del archivo de imagen (sin extensión) que debe existir en
+     * app/src/main/res/drawable/. Si el archivo no existe todavía, la
+     * tarjeta del producto muestra el [emoji] como respaldo automático.
+     */
+    val imagenNombre: String
 )
 
 /**
@@ -21,14 +28,38 @@ object CatalogoProductos {
     const val CATEGORIA_TODOS = "Todos"
 
     val productos = listOf(
-        Producto(1, "Tornillos", "🔩", "Fijación", listOf("1/4\"", "1/2\"", "3/4\"", "1\"")),
-        Producto(2, "Clavos", "📌", "Fijación", listOf("1\"", "2\"", "3\"")),
-        Producto(3, "Pintura", "🎨", "Pintura", listOf("1/4 galón", "1 galón", "4 litros")),
-        Producto(4, "Cinta métrica", "📏", "Medición", listOf("3 m", "5 m", "8 m")),
-        Producto(5, "Llave inglesa", "🔧", "Herramientas", listOf("6\"", "8\"", "10\"")),
-        Producto(6, "Martillo", "🔨", "Herramientas", listOf("Estándar", "Grande")),
-        Producto(7, "Cable eléctrico", "🔌", "Eléctrico", listOf("1 metro", "5 metros", "10 metros")),
-        Producto(8, "Foco / Ampolleta", "💡", "Eléctrico", listOf("Cálida", "Fría"))
+        Producto(
+            1, "Tornillos", "🔩", "Fijación", listOf("1/4\"", "1/2\"", "3/4\"", "1\""),
+            "Para fijar madera, metal o plástico de forma firme y duradera.", "tornillos"
+        ),
+        Producto(
+            2, "Clavos", "📌", "Fijación", listOf("1\"", "2\"", "3\""),
+            "Fijaciones rápidas y económicas para trabajos en madera.", "clavos"
+        ),
+        Producto(
+            3, "Pintura", "🎨", "Pintura", listOf("1/4 galón", "1 galón", "4 litros"),
+            "Cubre y protege superficies interiores y exteriores.", "pintura"
+        ),
+        Producto(
+            4, "Cinta métrica", "📏", "Medición", listOf("3 m", "5 m", "8 m"),
+            "Mide distancias con precisión antes de comprar o instalar.", "cinta_metrica"
+        ),
+        Producto(
+            5, "Llave inglesa", "🔧", "Herramientas", listOf("6\"", "8\"", "10\""),
+            "Ajusta tuercas y pernos de distintos tamaños.", "llave_inglesa"
+        ),
+        Producto(
+            6, "Martillo", "🔨", "Herramientas", listOf("Estándar", "Grande"),
+            "Para clavar, ajustar y desmontar piezas.", "martillo"
+        ),
+        Producto(
+            7, "Cable eléctrico", "🔌", "Eléctrico", listOf("1 metro", "5 metros", "10 metros"),
+            "Conduce energía de forma segura en instalaciones eléctricas.", "cable_electrico"
+        ),
+        Producto(
+            8, "Foco / Ampolleta", "💡", "Eléctrico", listOf("Cálida", "Fría"),
+            "Ilumina espacios interiores y exteriores.", "foco_ampolleta"
+        )
     )
 
     val categorias: List<String> = listOf(CATEGORIA_TODOS) + productos.map { it.categoria }.distinct()
