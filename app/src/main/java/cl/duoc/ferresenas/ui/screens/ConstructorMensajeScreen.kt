@@ -12,17 +12,22 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,14 +66,26 @@ fun ConstructorMensajeScreen(
 
     var mensajeGenerado by remember { mutableStateOf<String?>(null) }
 
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(producto.nombre) },
+                navigationIcon = {
+                    IconButton(onClick = onVolverCatalogo) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver al catálogo")
+                    }
+                }
+            )
+        }
+    ) { paddingInterno ->
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(paddingInterno)
             .verticalScroll(rememberScrollState())
             .padding(24.dp)
     ) {
         Text(text = producto.emoji, style = MaterialTheme.typography.headlineLarge)
-        Text(text = producto.nombre, style = MaterialTheme.typography.headlineMedium)
 
         // Input: cantidad
         OutlinedTextField(
@@ -177,12 +194,6 @@ fun ConstructorMensajeScreen(
                 }
             }
         }
-
-        TextButton(
-            onClick = onVolverCatalogo,
-            modifier = Modifier.padding(top = 16.dp)
-        ) {
-            Text("Elegir otro producto")
-        }
+    }
     }
 }
