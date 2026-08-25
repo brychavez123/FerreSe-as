@@ -44,7 +44,8 @@ import cl.duoc.ferresenas.data.Usuario
 @Composable
 fun RegistroScreen(
     onRegistroExitoso: () -> Unit,
-    onVolverLogin: () -> Unit
+    onVolverLogin: () -> Unit,
+    onVerPoliticaPrivacidad: () -> Unit
 ) {
     var nombre by remember { mutableStateOf("") }
     var correo by remember { mutableStateOf("") }
@@ -185,6 +186,9 @@ fun RegistroScreen(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(checked = recibirNotificaciones, onCheckedChange = { recibirNotificaciones = it })
             Text("Quiero recibir notificaciones de la app")
+        }
+        TextButton(onClick = onVerPoliticaPrivacidad) {
+            Text("Políticas de privacidad")
         }
 
         mensaje?.let {

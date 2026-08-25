@@ -11,6 +11,7 @@ import cl.duoc.ferresenas.data.CatalogoProductos
 import cl.duoc.ferresenas.ui.screens.ConstructorMensajeScreen
 import cl.duoc.ferresenas.ui.screens.HomeScreen
 import cl.duoc.ferresenas.ui.screens.LoginScreen
+import cl.duoc.ferresenas.ui.screens.PoliticaPrivacidadScreen
 import cl.duoc.ferresenas.ui.screens.RecuperarContrasenaScreen
 import cl.duoc.ferresenas.ui.screens.RegistroScreen
 
@@ -19,6 +20,7 @@ object Rutas {
     const val REGISTRO = "registro"
     const val RECUPERAR = "recuperar"
     const val HOME = "home"
+    const val POLITICA_PRIVACIDAD = "politica_privacidad"
     const val CONSTRUCTOR = "constructor/{productoId}"
 
     fun constructorConId(productoId: Int) = "constructor/$productoId"
@@ -47,7 +49,14 @@ fun FerreSenasNavGraph(navController: NavHostController = rememberNavController(
                         popUpTo(Rutas.LOGIN) { inclusive = true }
                     }
                 },
-                onVolverLogin = { navController.popBackStack() }
+                onVolverLogin = { navController.popBackStack() },
+                onVerPoliticaPrivacidad = { navController.navigate(Rutas.POLITICA_PRIVACIDAD) }
+            )
+        }
+
+        composable(Rutas.POLITICA_PRIVACIDAD) {
+            PoliticaPrivacidadScreen(
+                onVolver = { navController.popBackStack() }
             )
         }
 

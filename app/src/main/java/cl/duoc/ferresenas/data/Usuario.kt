@@ -19,11 +19,11 @@ data class Usuario(
 )
 
 /**
- * Repositorio en memoria para el registro solicitado por la actividad:
- * arreglo con los datos de los usuarios capturados en la vista de Registro.
- * Se precarga con 5 usuarios de prueba para poder iniciar sesión de inmediato
+ * Array con los datos de los usuarios.
+ * Se precarga con 5 usuarios de prueba para poder iniciar sesión
  * sin tener que registrarse primero.
  */
+
 object RepositorioUsuarios {
     val usuarios = mutableStateListOf(
         Usuario("Valentina Muñoz", "valentina@ferresenas.cl", "1234", PreferenciaComunicacion.ESCRIBIR, true),
