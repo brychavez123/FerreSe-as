@@ -19,6 +19,15 @@ data class Usuario(
 )
 
 /**
+ * Propiedad de extensión sobre Usuario: decide si el mensaje generado debe
+ * leerse en voz alta con LectorDeVoz, sin modificar la clase Usuario ni su
+ * constructor.
+ */
+val Usuario.prefiereEscuchar: Boolean
+    get() = preferenciaComunicacion == PreferenciaComunicacion.HABLAR ||
+        preferenciaComunicacion == PreferenciaComunicacion.AMBAS
+
+/**
  * Array con los datos de los usuarios.
  * Se precarga con 5 usuarios de prueba para poder iniciar sesión
  * sin tener que registrarse primero.

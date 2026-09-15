@@ -1,7 +1,5 @@
 package cl.duoc.ferresenas.ui.screens
 
-import android.widget.Toast
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -37,14 +34,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import cl.duoc.ferresenas.data.LectorDeVoz
 import cl.duoc.ferresenas.data.Producto
 import cl.duoc.ferresenas.data.RepositorioMensajes
+import cl.duoc.ferresenas.data.SesionActual
 import cl.duoc.ferresenas.data.TipoMensaje
+import cl.duoc.ferresenas.data.aTextoCantidad
 import cl.duoc.ferresenas.data.construirMensaje
+import cl.duoc.ferresenas.data.prefiereEscuchar
+import cl.duoc.ferresenas.data.textoACantidadSegura
+import cl.duoc.ferresenas.data.vibrarConfirmacion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +66,7 @@ fun ConstructorMensajeScreen(
     var tipoSeleccionado by remember { mutableStateOf(tiposMensaje.first().first) }
 
     var mensajeGenerado by remember { mutableStateOf<String?>(null) }
+    var errorCantidad by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         topBar = {
@@ -78,6 +80,18 @@ fun ConstructorMensajeScreen(
             )
         }
     ) { paddingInterno ->
+    val mensajeActual = mensajeGenerado
+    if (mensajeActual != null) {
+        // Pantalla completa con el mensaje: la barra superior (con el botón
+        // de volver) se mantiene, pero el formulario se oculta para que el
+        // mensaje ocupe casi toda la pantalla al mostrárselo al vendedor.
+        PantallaCompletaMensaje(
+            mensaje = mensajeActual,
+            paddingInterno = paddingInterno,
+            onEditar = { mensajeGenerado = null }
+        )
+        return@Scaffold
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -90,10 +104,15 @@ fun ConstructorMensajeScreen(
         // Input: cantidad
         OutlinedTextField(
             value = cantidad,
-            onValueChange = { cantidad = it.filter(Char::isDigit) },
+            onValueChange = {
+                cantidad = it.filter(Char::isDigit)
+                errorCantidad = null
+            },
             label = { Text("Cantidad") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
+            isError = errorCantidad != null,
+            supportingText = errorCantidad?.let { mensaje -> { Text(mensaje) } },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp)
@@ -157,42 +176,41 @@ fun ConstructorMensajeScreen(
 
         Button(
             onClick = {
-                mensajeGenerado = construirMensaje(
-                    tipo = tipoSeleccionado,
-                    producto = producto,
-                    cantidad = cantidad,
-                    medida = medidaSeleccionada
-                )
-                RepositorioMensajes.agregar(producto, mensajeGenerado!!)
-                Toast.makeText(contexto, "Mensaje generado. Muéstraselo al vendedor.", Toast.LENGTH_SHORT).show()
+                // try/catch/finally: si la cantidad ingresada no es un número
+                // válido, se avisa con un error persistente en el campo en vez
+                // de dejar que la aplicación falle.
+                var seGeneroMensaje = false
+                try {
+                    val resultado = textoACantidadSegura(cantidad)
+                    val cantidadValida = resultado.getOrThrow()
+                    mensajeGenerado = construirMensaje(
+                        tipo = tipoSeleccionado,
+                        producto = producto,
+                        cantidad = cantidadValida.aTextoCantidad(),
+                        medida = medidaSeleccionada
+                    )
+                    RepositorioMensajes.agregar(producto, mensajeGenerado!!)
+                    seGeneroMensaje = true
+                } catch (e: IllegalArgumentException) {
+                    mensajeGenerado = null
+                    errorCantidad = e.message ?: "Ingresa una cantidad válida."
+                } finally {
+                    if (seGeneroMensaje) {
+                        errorCantidad = null
+                        contexto.vibrarConfirmacion()
+                        // Si el usuario prefiere hablar (o ambas), el mensaje
+                        // también se lee en voz alta, sin que tenga que pedirlo.
+                        if (SesionActual.usuarioActual?.prefiereEscuchar == true) {
+                            LectorDeVoz.leer(mensajeGenerado!!)
+                        }
+                    }
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 20.dp)
         ) {
             Text("Generar mensaje")
-        }
-
-        // Mensaje visual grande, pensado para mostrarse al vendedor
-        mensajeGenerado?.let { mensaje ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 20.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = mensaje.replaceFirstChar { it.uppercase() },
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
-                }
-            }
         }
     }
     }
