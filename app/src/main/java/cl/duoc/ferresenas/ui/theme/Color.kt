@@ -8,3 +8,10 @@ val FondoClaro = Color(0xFFFFFDF7)
 val TextoAltoContraste = Color(0xFF1A1A1A)
 val VerdeExito = Color(0xFF2E7D32)
 val GrisSuave = Color(0xFFECECEC)
+
+// Colores del modo de alto contraste: fondo negro puro, texto blanco y acentos
+// en amarillo para que sean fáciles de distinguir para baja visión.
+val NegroAltoContraste = Color(0xFF000000)
+val BlancoAltoContraste = Color(0xFFFFFFFF)
+val AmarilloAltoContraste = Color(0xFFFFD600)
+val RojoErrorAltoContraste = Color(0xFFFF6E6E)
