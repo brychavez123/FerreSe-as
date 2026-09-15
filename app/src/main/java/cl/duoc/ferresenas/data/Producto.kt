@@ -94,7 +94,7 @@ object RepositorioMensajes {
 
     val historial = mutableStateListOf<MensajeHistorial>()
 
-    fun agregar(producto: Producto, mensaje: String) {
+    fun agregar(producto: Producto?, mensaje: String) {
         historial.add(0, MensajeHistorial(producto, mensaje, formato.format(Date())))
     }
 }

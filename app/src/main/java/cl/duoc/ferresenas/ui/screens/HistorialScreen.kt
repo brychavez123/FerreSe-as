@@ -52,7 +52,7 @@ fun HistorialScreen() {
                 RepositorioMensajes.historial.forEach { item ->
                     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                         Text(
-                            "${item.producto.emoji} ${item.producto.nombre}",
+                            item.producto?.let { "${it.emoji} ${it.nombre}" } ?: "✍️ Personalizado",
                             modifier = Modifier.weight(1f)
                         )
                         Text(

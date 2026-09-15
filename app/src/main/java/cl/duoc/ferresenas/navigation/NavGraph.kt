@@ -11,6 +11,7 @@ import cl.duoc.ferresenas.data.CatalogoProductos
 import cl.duoc.ferresenas.ui.screens.ConstructorMensajeScreen
 import cl.duoc.ferresenas.ui.screens.HomeScreen
 import cl.duoc.ferresenas.ui.screens.LoginScreen
+import cl.duoc.ferresenas.ui.screens.MensajePersonalizadoScreen
 import cl.duoc.ferresenas.ui.screens.PoliticaPrivacidadScreen
 import cl.duoc.ferresenas.ui.screens.RecuperarContrasenaScreen
 import cl.duoc.ferresenas.ui.screens.RegistroScreen
@@ -21,6 +22,7 @@ object Rutas {
     const val RECUPERAR = "recuperar"
     const val HOME = "home"
     const val POLITICA_PRIVACIDAD = "politica_privacidad"
+    const val MENSAJE_PERSONALIZADO = "mensaje_personalizado"
     const val CONSTRUCTOR = "constructor/{productoId}"
 
     fun constructorConId(productoId: Int) = "constructor/$productoId"
@@ -75,7 +77,14 @@ fun FerreSenasNavGraph(navController: NavHostController = rememberNavController(
                     navController.navigate(Rutas.LOGIN) {
                         popUpTo(Rutas.HOME) { inclusive = true }
                     }
-                }
+                },
+                onCrearMensajePersonalizado = { navController.navigate(Rutas.MENSAJE_PERSONALIZADO) }
+            )
+        }
+
+        composable(Rutas.MENSAJE_PERSONALIZADO) {
+            MensajePersonalizadoScreen(
+                onVolver = { navController.popBackStack() }
             )
         }
 
