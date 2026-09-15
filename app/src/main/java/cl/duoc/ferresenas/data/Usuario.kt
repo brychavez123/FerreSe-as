@@ -46,6 +46,12 @@ object RepositorioUsuarios {
         usuarios.add(usuario)
     }
 
+    /** Reemplaza los datos de un usuario ya registrado (por ejemplo, al cambiar sus preferencias). */
+    fun actualizar(usuarioActualizado: Usuario) {
+        val indice = usuarios.indexOfFirst { it.correo.equals(usuarioActualizado.correo, ignoreCase = true) }
+        if (indice != -1) usuarios[indice] = usuarioActualizado
+    }
+
     fun existeCorreo(correo: String): Boolean =
         usuarios.any { it.correo.equals(correo, ignoreCase = true) }
 
@@ -58,7 +64,9 @@ object RepositorioUsuarios {
 
 /** Usuario con sesión activa en la app (nulo si nadie ha iniciado sesión). */
 object SesionActual {
-    var usuarioActual: Usuario? = null
+    // by mutableStateOf: si no fuera estado de Compose, cambiar las
+    // preferencias desde Perfil no redibujaría la pantalla sin navegar.
+    var usuarioActual: Usuario? by mutableStateOf(null)
     var fotoPerfilUri: Uri? by mutableStateOf(null)
 
     fun cerrarSesion() {
