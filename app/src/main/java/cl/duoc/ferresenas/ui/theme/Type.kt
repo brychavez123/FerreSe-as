@@ -38,22 +38,16 @@ val Typography = Typography(
     )
 )
 
-/**
- * Función de extensión sobre TextStyle: escala el tamaño y el interlineado
- * por un factor, dejando "sin especificar" tal como estaba si el estilo no
- * definía ese valor.
- */
+// extension sobre TextStyle que escala el tamaño de letra y el interlineado.
+// si el estilo no tenia ese valor definido (isSpecified false) lo deja igual
 private fun TextStyle.escalado(factor: Float): TextStyle = copy(
     fontSize = if (fontSize.isSpecified) fontSize * factor else fontSize,
     lineHeight = if (lineHeight.isSpecified) lineHeight * factor else lineHeight
 )
 
-/**
- * Función de extensión sobre Typography: aplica el mismo factor de escala a
- * los 15 estilos de texto de Material Design 3, para que el ajuste de
- * tamaño de letra de Configuración se note en toda la aplicación y no solo
- * en una pantalla puntual.
- */
+// extension sobre Typography, aplica el escalado a los 15 estilos de
+// Material 3 de una. Asi el ajuste de tamaño de letra se nota en toda la
+// app y no solo en una pantalla
 fun Typography.escalado(factor: Float): Typography = Typography(
     displayLarge = displayLarge.escalado(factor),
     displayMedium = displayMedium.escalado(factor),

@@ -36,8 +36,8 @@ fun PerfilScreen(onCerrarSesion: () -> Unit) {
     val contexto = LocalContext.current
     val usuario = SesionActual.usuarioActual
 
-    // Guarda el cambio tanto en el arreglo de usuarios como en la sesión
-    // activa, para que se recuerde la próxima vez que este correo inicie sesión.
+    // guardo el cambio en el arreglo de usuarios y en la sesion actual, asi
+    // queda guardado para la proxima vez que ese correo inicie sesion
     fun actualizarUsuario(nuevo: Usuario) {
         RepositorioUsuarios.actualizar(nuevo)
         SesionActual.usuarioActual = nuevo
@@ -74,7 +74,7 @@ fun PerfilScreen(onCerrarSesion: () -> Unit) {
                 FilaDato("Preferencia de comunicación", usuario?.preferenciaComunicacion?.name ?: "-")
                 FilaDato("Notificaciones", if (usuario?.recibirNotificaciones == true) "Activadas" else "Desactivadas")
                 FilaDato("Mensajes generados", RepositorioMensajes.historial.size.toString())
-                // masReciente es una propiedad de extensión sobre List<MensajeHistorial>.
+                // masReciente esta en Utilidades.kt, es una extension de la lista
                 FilaDato("Último mensaje", RepositorioMensajes.historial.masReciente?.mensaje ?: "Ninguno todavía")
             }
         }

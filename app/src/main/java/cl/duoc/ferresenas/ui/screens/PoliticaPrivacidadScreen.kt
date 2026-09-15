@@ -78,7 +78,7 @@ fun PoliticaPrivacidadScreen(onVolver: () -> Unit) {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            // Tabla: dato recopilado, finalidad y tiempo de conservación
+            // encabezado de la tabla de datos recopilados
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     "Dato",

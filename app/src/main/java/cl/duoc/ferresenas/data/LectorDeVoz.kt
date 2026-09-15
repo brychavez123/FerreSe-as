@@ -4,16 +4,14 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import java.util.Locale
 
-/**
- * Envoltorio simple sobre TextToSpeech de Android: lee mensajes en voz alta
- * para las personas cuya preferencia de comunicación es Hablar o Ambas,
- * o para cualquiera que toque el botón de escuchar el mensaje.
- */
+// uso el TextToSpeech de Android para leer el mensaje en voz alta.
+// se activa solo si el usuario eligio "Hablar" o "Ambas" en su perfil,
+// pero el boton de escuchar mensaje lo puede usar cualquiera igual
 object LectorDeVoz {
     private var tts: TextToSpeech? = null
     private var listoParaHablar = false
 
-    /** Debe llamarse una vez, al iniciar la app (MainActivity.onCreate). */
+    // se llama una vez desde MainActivity.onCreate
     fun inicializar(contexto: Context) {
         if (tts != null) return
         tts = TextToSpeech(contexto.applicationContext) { estado ->
@@ -24,13 +22,13 @@ object LectorDeVoz {
         }
     }
 
-    /** Lee el texto en voz alta, interrumpiendo cualquier lectura anterior. */
+    // QUEUE_FLUSH corta lo que estuviera leyendo antes y arranca con este
     fun leer(texto: String) {
         if (!listoParaHablar || texto.isBlank()) return
         tts?.speak(texto, TextToSpeech.QUEUE_FLUSH, null, "ferresenas_mensaje")
     }
 
-    /** Libera los recursos del motor de voz. Debe llamarse al cerrar la app. */
+    // hay que llamar esto al cerrar la app, si no queda el motor de voz prendido
     fun liberar() {
         tts?.stop()
         tts?.shutdown()

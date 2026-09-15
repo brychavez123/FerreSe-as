@@ -29,13 +29,9 @@ import cl.duoc.ferresenas.data.SesionActual
 import cl.duoc.ferresenas.data.prefiereEscuchar
 import cl.duoc.ferresenas.data.vibrarConfirmacion
 
-/**
- * Alternativa al mensaje generado desde el catálogo: le permite al usuario
- * escribir libremente lo que quiera decirle al vendedor, para cuando el
- * producto o la duda no calzan con ninguna opción del catálogo. Reutiliza
- * la misma pantalla completa (auto-ajuste de texto, TTS, vibración) que el
- * Constructor de mensaje.
- */
+// esta pantalla es para cuando el usuario quiere preguntar algo que no
+// esta en el catalogo, puede escribir el mensaje que quiera a mano.
+// reutiliza la misma pantalla completa del Constructor de mensaje
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MensajePersonalizadoScreen(onVolver: () -> Unit) {
@@ -96,16 +92,15 @@ fun MensajePersonalizadoScreen(onVolver: () -> Unit) {
 
             Button(
                 onClick = {
-                    // try/catch: valida que no esté vacío antes de mostrarlo
-                    // a pantalla completa, en vez de dejar pasar un mensaje en blanco.
+                    // reviso con try/catch que no venga vacio antes de pasar
+                    // a la pantalla completa
                     try {
                         require(texto.isNotBlank()) { "Escribe un mensaje antes de continuar." }
                         val mensajeListo = texto.trim()
                         mensajeGenerado = mensajeListo
                         RepositorioMensajes.agregar(producto = null, mensaje = mensajeListo)
                         contexto.vibrarConfirmacion()
-                        // Igual que en el Constructor de mensaje: si el usuario
-                        // prefiere hablar (o ambas), se lee solo en voz alta.
+                        // mismo comportamiento que en Constructor de mensaje
                         if (SesionActual.usuarioActual?.prefiereEscuchar == true) {
                             LectorDeVoz.leer(mensajeListo)
                         }

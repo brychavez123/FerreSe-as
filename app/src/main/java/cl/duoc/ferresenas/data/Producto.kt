@@ -81,8 +81,8 @@ fun construirMensaje(
 }
 
 data class MensajeHistorial(
-    // Nulo cuando el mensaje es personalizado (escrito libremente), no
-    // generado a partir de un producto del catálogo.
+    // queda en null cuando el mensaje es de los personalizados (los que
+    // el usuario escribe libre, no vienen de un producto del catalogo)
     val producto: Producto?,
     val mensaje: String,
     val fechaHora: String

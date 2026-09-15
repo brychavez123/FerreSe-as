@@ -7,10 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlin.math.roundToInt
 
-/**
- * Niveles de tamaño de letra disponibles para toda la aplicación. El factor
- * multiplica el tamaño base de cada estilo de texto (ver Type.kt).
- */
+// el factor multiplica el tamaño base de letra que esta en Type.kt,
+// segun el nivel que haya elegido el usuario
 enum class TamanoTexto(val factor: Float, val etiqueta: String) {
     PEQUENO(0.85f, "Pequeño"),
     NORMAL(1f, "Normal"),
@@ -18,30 +16,23 @@ enum class TamanoTexto(val factor: Float, val etiqueta: String) {
     MUY_GRANDE(1.3f, "Muy grande")
 }
 
-/**
- * Función de extensión sobre TamanoTexto: da el siguiente nivel disponible
- * sin pasarse del máximo, para el botón "A+" de Configuración.
- */
+// para el boton "A+", pasa al siguiente nivel y si ya esta en el mas
+// grande se queda ahi no mas
 fun TamanoTexto.aumentado(): TamanoTexto {
     val siguiente = ordinal + 1
     return TamanoTexto.entries.getOrElse(siguiente) { this }
 }
 
-/**
- * Función de extensión sobre TamanoTexto: da el nivel anterior sin bajar del
- * mínimo, para el botón "A-" de Configuración.
- */
+// lo mismo pero para "A-"
 fun TamanoTexto.disminuido(): TamanoTexto {
     val anterior = ordinal - 1
     return TamanoTexto.entries.getOrElse(anterior) { this }
 }
 
-/**
- * Preferencias de accesibilidad de la app (alto contraste, tamaño de letra y
- * vibración). Se guardan con SharedPreferences para que se mantengan aunque
- * el usuario cierre y vuelva a abrir la aplicación, y se exponen como estado
- * de Compose para que las pantallas se redibujen solas cuando cambian.
- */
+// alto contraste, tamaño de letra y vibracion, guardados con
+// SharedPreferences para que no se borren al cerrar la app. Los deje como
+// mutableStateOf para que las pantallas se actualicen solas y no tener
+// que andar pasando callback por todos lados
 object PreferenciasApp {
     private const val ARCHIVO = "ferresenas_preferencias"
     private const val CLAVE_ALTO_CONTRASTE = "alto_contraste"
@@ -59,7 +50,7 @@ object PreferenciasApp {
     var vibracionActiva by mutableStateOf(true)
         private set
 
-    /** Debe llamarse una vez, al iniciar la app (MainActivity.onCreate). */
+    // esto se llama una vez sola, desde MainActivity.onCreate
     fun inicializar(contexto: Context) {
         if (preferencias != null) return
         val prefs = contexto.applicationContext.getSharedPreferences(ARCHIVO, Context.MODE_PRIVATE)
@@ -91,11 +82,7 @@ object PreferenciasApp {
     }
 }
 
-/**
- * Propiedad de extensión sobre PreferenciasApp: calcula a qué tamaño en sp
- * corresponde el mensaje grande que se le muestra al vendedor, proporcional
- * al tamaño de letra elegido en Configuración, sin modificar la clase
- * original ni guardar ese número aparte en SharedPreferences.
- */
+// tamaño en sp del mensaje grande segun el nivel elegido (parte de una
+// base de 26sp y se escala con el mismo factor de TamanoTexto)
 val PreferenciasApp.tamanoMensajeSp: Int
     get() = (26 * tamanoTexto.factor).roundToInt()

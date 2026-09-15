@@ -82,9 +82,8 @@ fun ConstructorMensajeScreen(
     ) { paddingInterno ->
     val mensajeActual = mensajeGenerado
     if (mensajeActual != null) {
-        // Pantalla completa con el mensaje: la barra superior (con el botón
-        // de volver) se mantiene, pero el formulario se oculta para que el
-        // mensaje ocupe casi toda la pantalla al mostrárselo al vendedor.
+        // cuando ya hay mensaje generado, se muestra la pantalla completa
+        // y se esconde el formulario
         PantallaCompletaMensaje(
             mensaje = mensajeActual,
             paddingInterno = paddingInterno,
@@ -176,9 +175,9 @@ fun ConstructorMensajeScreen(
 
         Button(
             onClick = {
-                // try/catch/finally: si la cantidad ingresada no es un número
-                // válido, se avisa con un error persistente en el campo en vez
-                // de dejar que la aplicación falle.
+                // try/catch/finally aca, para que si la cantidad no es un
+                // numero valido no se caiga la app, solo marque el error
+                // en el campo
                 var seGeneroMensaje = false
                 try {
                     val resultado = textoACantidadSegura(cantidad)
@@ -198,8 +197,8 @@ fun ConstructorMensajeScreen(
                     if (seGeneroMensaje) {
                         errorCantidad = null
                         contexto.vibrarConfirmacion()
-                        // Si el usuario prefiere hablar (o ambas), el mensaje
-                        // también se lee en voz alta, sin que tenga que pedirlo.
+                        // si prefiere hablar (o ambas) se lo lee solo, sin
+                        // que tenga que apretar el boton de escuchar
                         if (SesionActual.usuarioActual?.prefiereEscuchar == true) {
                             LectorDeVoz.leer(mensajeGenerado!!)
                         }

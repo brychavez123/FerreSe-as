@@ -6,13 +6,9 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 
-/**
- * Función de extensión sobre Context: le agrega a Context la capacidad de
- * vibrar el dispositivo como confirmación, sin modificar la clase Context ni
- * repetir en cada pantalla la lógica de VibrationEffect según la versión de
- * Android. Complementa la confirmación visual, nunca la reemplaza, y respeta
- * la preferencia de vibración configurada en Configuración.
- */
+// extension sobre Context para no repetir el if de la version de Android
+// cada vez que necesito vibrar. Esto es solo un extra, no reemplaza el
+// aviso visual (por eso si algo falla no hago nada, ver el catch de abajo)
 fun Context.vibrarConfirmacion(duracionMs: Long = 150) {
     if (!PreferenciasApp.vibracionActiva) return
     try {
@@ -30,7 +26,7 @@ fun Context.vibrarConfirmacion(duracionMs: Long = 150) {
             vibrator.vibrate(duracionMs)
         }
     } catch (e: Exception) {
-        // Si el dispositivo no tiene vibrador o niega el permiso, se ignora
-        // en silencio: la confirmación visual ya cumplió su función.
+        // si el celular no tiene vibrador o no da permiso no pasa nada,
+        // igual ya se mostro el aviso visual
     }
 }

@@ -44,8 +44,8 @@ fun CatalogoScreen(
 ) {
     var categoriaSeleccionada by remember { mutableStateOf(CatalogoProductos.CATEGORIA_TODOS) }
 
-    // categoriasDisponibles es una propiedad de extensión sobre List<Producto>
-    // (map + distinct + sortedBy) que arma la lista de categorías del catálogo.
+    // categoriasDisponibles esta en Utilidades.kt, saca las categorias que
+    // hay en el catalogo sin tener que escribirlas todas a mano de nuevo
     val categorias = listOf(CatalogoProductos.CATEGORIA_TODOS) + CatalogoProductos.productos.categoriasDisponibles
 
     val productosFiltrados = if (categoriaSeleccionada == CatalogoProductos.CATEGORIA_TODOS) {

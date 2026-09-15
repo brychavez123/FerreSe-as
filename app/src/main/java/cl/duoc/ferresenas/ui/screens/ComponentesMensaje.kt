@@ -34,13 +34,10 @@ import cl.duoc.ferresenas.data.capitalizarPrimeraLetra
 import cl.duoc.ferresenas.data.tamanoMensajeSp
 import cl.duoc.ferresenas.ui.theme.VerdeExito
 
-/**
- * Mensaje a pantalla completa: ocupa casi todo el espacio disponible bajo la
- * barra superior (el botón de volver sigue visible) para que sea fácil de
- * leer de lejos al mostrárselo al vendedor. Se usa tanto para el mensaje
- * generado desde un producto como para el mensaje personalizado.
- * "Editar mensaje" vuelve al formulario sin perder lo que ya se había escrito.
- */
+// esta la comparten el constructor de mensaje y el mensaje personalizado,
+// asi no repito el mismo codigo dos veces. es a pantalla casi completa
+// (queda la barra de arriba con el boton de volver) para que se pueda
+// leer de lejos cuando se le muestra al vendedor
 @Composable
 fun PantallaCompletaMensaje(
     mensaje: String,
@@ -53,8 +50,8 @@ fun PantallaCompletaMensaje(
             .padding(paddingInterno)
             .padding(24.dp)
     ) {
-        // Confirmación visual persistente: no depende de un Toast que
-        // desaparece solo, así el usuario siempre puede volver a verla.
+        // card fija en vez de Toast, para que no se pierda el mensaje si el
+        // usuario se demora en mirar la pantalla
         Card(
             colors = CardDefaults.cardColors(containerColor = VerdeExito.copy(alpha = 0.12f)),
             border = BorderStroke(1.dp, VerdeExito),
@@ -77,10 +74,8 @@ fun PantallaCompletaMensaje(
             }
         }
 
-        // El mensaje toma todo el espacio que sobra entre la confirmación y
-        // los botones de abajo, y se autoajusta: arranca grande (para leerse
-        // de lejos) y va achicándose solo hasta que el texto completo entra
-        // sin cortarse, sin importar cuán largo sea el mensaje.
+        // ocupa el espacio que queda libre y se va achicando solo si el
+        // mensaje es muy largo (ver MensajeAutoAjustable mas abajo)
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -94,8 +89,7 @@ fun PantallaCompletaMensaje(
             )
         }
 
-        // Botón manual: cualquier persona puede pedir que se lea el mensaje
-        // en voz alta, prefiera hablar o no.
+        // este boton lo puede usar cualquiera, no solo los que prefieren hablar
         TextButton(
             onClick = { LectorDeVoz.leer(mensaje) },
             modifier = Modifier.fillMaxWidth()
@@ -113,12 +107,9 @@ fun PantallaCompletaMensaje(
     }
 }
 
-/**
- * Texto que se autoajusta al espacio disponible: empieza en [tamanoMaximoSp]
- * y, si no entra completo (queda cortado), va bajando de a 2sp hasta caber
- * o hasta llegar a [tamanoMinimoSp]. Así un mensaje corto se ve grande y uno
- * largo no se corta ni queda apretado.
- */
+// arranca grande y si el texto no cabe entero lo va achicando de a poquito
+// (2sp por vuelta) hasta que entre, sin bajar del minimo. Asi un mensaje
+// corto se ve grande y uno largo no queda cortado
 @Composable
 private fun MensajeAutoAjustable(
     texto: String,

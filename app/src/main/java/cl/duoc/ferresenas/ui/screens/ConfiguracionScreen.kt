@@ -30,13 +30,7 @@ import cl.duoc.ferresenas.data.PreferenciasApp
 import cl.duoc.ferresenas.data.TamanoTexto
 import cl.duoc.ferresenas.data.vibrarConfirmacion
 
-/**
- * Pestaña de accesibilidad del menú inferior (junto a Inicio, Historial y
- * Perfil). Permite activar alto contraste, subir o bajar el tamaño de letra
- * de toda la aplicación y activar la vibración de confirmación; los tres
- * cambios se guardan de inmediato con PreferenciasApp y se mantienen aunque
- * el usuario cierre la aplicación.
- */
+
 @Composable
 fun ConfiguracionScreen() {
     val contexto = LocalContext.current
@@ -124,11 +118,6 @@ private fun FilaAjuste(
     }
 }
 
-/**
- * Fila con botones "A-" / "A+" para achicar o agrandar el tamaño de letra
- * de toda la aplicación (no solo el mensaje al vendedor). Cada botón se
- * deshabilita al llegar al nivel mínimo o máximo disponible.
- */
 @Composable
 private fun FilaTamanoTexto(
     tamanoActual: TamanoTexto,

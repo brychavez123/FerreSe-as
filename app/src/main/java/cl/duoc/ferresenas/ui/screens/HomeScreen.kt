@@ -88,9 +88,9 @@ fun HomeScreen(
             }
         },
         floatingActionButton = {
-            // Solo en Catálogo: es la alternativa al mensaje generado por
-            // producto, para cuando el usuario necesita preguntar otra cosa.
-            // Chico y circular para no tapar las tarjetas de productos.
+            // solo se muestra en Catalogo (pestaña 0). es para cuando el
+            // usuario quiere preguntar otra cosa que no esta en el catalogo.
+            // lo deje chico y redondo para que no tape las tarjetas
             if (pestanaSeleccionada == 0) {
                 SmallFloatingActionButton(
                     onClick = onCrearMensajePersonalizado,
@@ -113,10 +113,8 @@ fun HomeScreen(
     }
 }
 
-/**
- * Barra superior personalizada: avatar del usuario (con opción de elegir foto
- * desde la galería), su nombre y correo, y un acceso rápido de ayuda.
- */
+// barra de arriba con el avatar (se puede tocar para cambiar la foto),
+// el nombre y correo del usuario, y el boton de ayuda
 @Composable
 private fun EncabezadoInicio() {
     val contexto = LocalContext.current
@@ -160,8 +158,8 @@ private fun EncabezadoInicio() {
                 color = Color.White.copy(alpha = 0.85f)
             )
         }
-        // Ícono de "?" (ayuda), no de campana: una campana se confunde con
-        // notificaciones y este botón no tiene nada que ver con eso.
+        // antes tenia el icono de campana pero eso parece notificacion,
+        // lo cambie por el de "?" que tiene mas sentido para ayuda
         IconButton(onClick = {
             Toast.makeText(
                 contexto,
@@ -191,9 +189,9 @@ private fun AvatarUsuario(nombre: String, fotoUri: Uri?, onClick: () -> Unit) {
             .clip(CircleShape)
             .background(Color.White.copy(alpha = 0.25f))
             .clickable(onClick = onClick)
-            // El botón entero explica su acción; así el lector de pantalla no
-            // se queda mudo cuando todavía no hay foto elegida (solo se ve
-            // la inicial del nombre, que por sí sola no dice "toca para cambiar").
+            // sin esto el lector de pantalla queda mudo cuando no hay foto
+            // (solo se ve la inicial del nombre, y esa sola no dice que se
+            // puede tocar para cambiarla)
             .semantics { contentDescription = "Cambiar foto de perfil" },
         contentAlignment = Alignment.Center
     ) {

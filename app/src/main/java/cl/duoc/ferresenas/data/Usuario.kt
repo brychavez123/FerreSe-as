@@ -18,11 +18,8 @@ data class Usuario(
     val recibirNotificaciones: Boolean
 )
 
-/**
- * Propiedad de extensión sobre Usuario: decide si el mensaje generado debe
- * leerse en voz alta con LectorDeVoz, sin modificar la clase Usuario ni su
- * constructor.
- */
+// extension sobre Usuario para saber si hay que leerle el mensaje con
+// LectorDeVoz, sin tener que agregar un campo nuevo a la clase
 val Usuario.prefiereEscuchar: Boolean
     get() = preferenciaComunicacion == PreferenciaComunicacion.HABLAR ||
         preferenciaComunicacion == PreferenciaComunicacion.AMBAS
@@ -46,7 +43,8 @@ object RepositorioUsuarios {
         usuarios.add(usuario)
     }
 
-    /** Reemplaza los datos de un usuario ya registrado (por ejemplo, al cambiar sus preferencias). */
+    // reemplaza los datos de un usuario que ya estaba registrado, por
+    // ejemplo cuando cambia sus preferencias desde Perfil
     fun actualizar(usuarioActualizado: Usuario) {
         val indice = usuarios.indexOfFirst { it.correo.equals(usuarioActualizado.correo, ignoreCase = true) }
         if (indice != -1) usuarios[indice] = usuarioActualizado
@@ -64,8 +62,8 @@ object RepositorioUsuarios {
 
 /** Usuario con sesión activa en la app (nulo si nadie ha iniciado sesión). */
 object SesionActual {
-    // by mutableStateOf: si no fuera estado de Compose, cambiar las
-    // preferencias desde Perfil no redibujaría la pantalla sin navegar.
+    // esto tiene que ser mutableStateOf, si no cuando cambio las
+    // preferencias desde Perfil la pantalla no se actualiza sola
     var usuarioActual: Usuario? by mutableStateOf(null)
     var fotoPerfilUri: Uri? by mutableStateOf(null)
 

@@ -205,9 +205,8 @@ fun RegistroScreen(
 
         Button(
             onClick = {
-                // primerError es una función de orden superior e inline: cada
-                // validación lleva su propia lambda con el mensaje, que solo
-                // se arma si esa validación falla.
+                // primerError esta en Utilidades.kt, corta apenas encuentra
+                // la primera validacion que falla
                 val error = primerError(
                     (nombre.isNotBlank() && correo.isNotBlank() && contrasena.isNotBlank()) to
                         { "Completa todos los campos obligatorios." },

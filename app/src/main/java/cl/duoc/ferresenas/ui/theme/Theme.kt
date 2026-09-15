@@ -25,8 +25,8 @@ private val EsquemaOscuro = darkColorScheme(
     secondary = AzulConfianza
 )
 
-// Alto contraste: fondo negro, texto blanco y acentos amarillos, muy por
-// encima del contraste mínimo recomendado para accesibilidad visual.
+// esquema de alto contraste: fondo negro, texto blanco, acentos amarillos.
+// deberia ser bastante mas facil de leer que el esquema normal
 private val EsquemaAltoContraste = darkColorScheme(
     primary = AmarilloAltoContraste,
     onPrimary = NegroAltoContraste,
@@ -45,17 +45,15 @@ fun FerreSenasTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    // PreferenciasApp.altoContraste es un estado de Compose: al cambiar en
-    // Configuración, este bloque se recompone solo, sin recibir parámetros extra.
+    // altoContraste es mutableStateOf, entonces con solo leerlo aca ya
+    // se recompone solo cuando cambia en Configuracion
     val colorScheme = when {
         PreferenciasApp.altoContraste -> EsquemaAltoContraste
         darkTheme -> EsquemaOscuro
         else -> EsquemaClaro
     }
 
-    // Igual que el color, el tamaño de letra es un estado de Compose: al
-    // cambiar en Configuración, toda la app (no solo una pantalla) usa el
-    // nuevo tamaño de inmediato.
+    // lo mismo con el tamaño de letra, cambia en toda la app al tiro
     val factorTexto = PreferenciasApp.tamanoTexto.factor
     val tipografia = remember(factorTexto) { Typography.escalado(factorTexto) }
 
