@@ -20,23 +20,24 @@ object CatalogoProductos {
 
     val productos = listOf(
         Producto(
-            1, "Tornillos", "🔩", "Fijación", listOf("1/4\"", "1/2\"", "3/4\"", "1\""),
+            1, "Tornillos", "🔩", "Fijación",
+            listOf("1/4 de pulgada", "1/2 pulgada", "3/4 de pulgada", "1 pulgada"),
             "Para fijar madera, metal o plástico de forma firme y duradera.", "tornillos"
         ),
         Producto(
-            2, "Clavos", "📌", "Fijación", listOf("1\"", "2\"", "3\""),
+            2, "Clavos", "📌", "Fijación", listOf("1 pulgada", "2 pulgadas", "3 pulgadas"),
             "Fijaciones rápidas y económicas para trabajos en madera.", "clavos"
         ),
         Producto(
-            3, "Pintura", "🎨", "Pintura", listOf("1/4 galón", "1 galón", "4 litros"),
+            3, "Pintura", "🎨", "Pintura", listOf("1/4 de galón", "1 galón", "4 litros"),
             "Cubre y protege superficies interiores y exteriores.", "pintura"
         ),
         Producto(
-            4, "Cinta métrica", "📏", "Medición", listOf("3 m", "5 m", "8 m"),
+            4, "Cinta métrica", "📏", "Medición", listOf("3 metros", "5 metros", "8 metros"),
             "Mide distancias con precisión antes de comprar o instalar.", "cinta_metrica"
         ),
         Producto(
-            5, "Llave inglesa", "🔧", "Herramientas", listOf("6\"", "8\"", "10\""),
+            5, "Llave inglesa", "🔧", "Herramientas", listOf("6 pulgadas", "8 pulgadas", "10 pulgadas"),
             "Ajusta tuercas y pernos de distintos tamaños.", "llave_inglesa"
         ),
         Producto(
@@ -53,14 +54,18 @@ object CatalogoProductos {
         )
     )
 
-    val categorias: List<String> = listOf(CATEGORIA_TODOS) + productos.map { it.categoria }.distinct()
-
     fun buscarPorId(id: Int): Producto? = productos.find { it.id == id }
 }
 
 enum class TipoMensaje(val plantilla: String) {
-    NECESITO_COMPRAR("Necesito {cantidad} {producto} de esta medida: {medida}"),
-    CONSULTA_DISPONIBILIDAD("¿Tiene disponible {producto} en esta medida: {medida}?")
+    NECESITO_COMPRAR(
+        "Hola, necesito comprar {cantidad} {producto}, de esta medida: {medida}. " +
+            "¿Me puede ayudar, por favor?"
+    ),
+    CONSULTA_DISPONIBILIDAD(
+        "Hola, quisiera consultar si tiene disponible {cantidad} {producto}, " +
+            "de esta medida: {medida}. Muchas gracias."
+    )
 }
 
 fun construirMensaje(
@@ -76,7 +81,9 @@ fun construirMensaje(
 }
 
 data class MensajeHistorial(
-    val producto: Producto,
+    // Nulo cuando el mensaje es personalizado (escrito libremente), no
+    // generado a partir de un producto del catálogo.
+    val producto: Producto?,
     val mensaje: String,
     val fechaHora: String
 )
