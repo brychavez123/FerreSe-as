@@ -39,6 +39,10 @@ import cl.duoc.ferresenas.data.PreferenciaComunicacion
 import cl.duoc.ferresenas.data.RepositorioUsuarios
 import cl.duoc.ferresenas.data.SesionActual
 import cl.duoc.ferresenas.data.Usuario
+import cl.duoc.ferresenas.data.capitalizarPrimeraLetra
+import cl.duoc.ferresenas.data.ejecutarSi
+import cl.duoc.ferresenas.data.primerError
+import cl.duoc.ferresenas.data.vibrarConfirmacion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -201,27 +205,30 @@ fun RegistroScreen(
 
         Button(
             onClick = {
-                mensaje = when {
-                    nombre.isBlank() || correo.isBlank() || contrasena.isBlank() ->
-                        "Completa todos los campos obligatorios."
-                    !aceptaTerminos ->
-                        "Debes aceptar los términos y condiciones."
-                    RepositorioUsuarios.existeCorreo(correo) ->
-                        "Ese correo ya está registrado."
-                    else -> {
-                        val nuevoUsuario = Usuario(
-                            nombre = nombre,
-                            correo = correo,
-                            contrasena = contrasena,
-                            preferenciaComunicacion = preferenciaSeleccionada,
-                            recibirNotificaciones = recibirNotificaciones
-                        )
-                        RepositorioUsuarios.registrar(nuevoUsuario)
-                        SesionActual.usuarioActual = nuevoUsuario
-                        Toast.makeText(contexto, "Cuenta creada. ¡Bienvenido/a $nombre!", Toast.LENGTH_SHORT).show()
-                        onRegistroExitoso()
-                        null
-                    }
+                // primerError es una función de orden superior e inline: cada
+                // validación lleva su propia lambda con el mensaje, que solo
+                // se arma si esa validación falla.
+                val error = primerError(
+                    (nombre.isNotBlank() && correo.isNotBlank() && contrasena.isNotBlank()) to
+                        { "Completa todos los campos obligatorios." },
+                    aceptaTerminos to { "Debes aceptar los términos y condiciones." },
+                    (!RepositorioUsuarios.existeCorreo(correo)) to { "Ese correo ya está registrado." }
+                )
+                mensaje = error
+
+                ejecutarSi(error == null) {
+                    val nuevoUsuario = Usuario(
+                        nombre = nombre.capitalizarPrimeraLetra(),
+                        correo = correo,
+                        contrasena = contrasena,
+                        preferenciaComunicacion = preferenciaSeleccionada,
+                        recibirNotificaciones = recibirNotificaciones
+                    )
+                    RepositorioUsuarios.registrar(nuevoUsuario)
+                    SesionActual.usuarioActual = nuevoUsuario
+                    contexto.vibrarConfirmacion()
+                    Toast.makeText(contexto, "Cuenta creada. ¡Bienvenido/a $nombre!", Toast.LENGTH_SHORT).show()
+                    onRegistroExitoso()
                 }
             },
             modifier = Modifier

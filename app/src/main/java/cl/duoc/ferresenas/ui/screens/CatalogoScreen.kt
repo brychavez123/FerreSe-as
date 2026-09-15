@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cl.duoc.ferresenas.data.CatalogoProductos
 import cl.duoc.ferresenas.data.Producto
+import cl.duoc.ferresenas.data.categoriasDisponibles
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,11 +43,16 @@ fun CatalogoScreen(
     onProductoSeleccionado: (Producto) -> Unit
 ) {
     var categoriaSeleccionada by remember { mutableStateOf(CatalogoProductos.CATEGORIA_TODOS) }
+
+    // categoriasDisponibles es una propiedad de extensión sobre List<Producto>
+    // (map + distinct + sortedBy) que arma la lista de categorías del catálogo.
+    val categorias = listOf(CatalogoProductos.CATEGORIA_TODOS) + CatalogoProductos.productos.categoriasDisponibles
+
     val productosFiltrados = if (categoriaSeleccionada == CatalogoProductos.CATEGORIA_TODOS) {
         CatalogoProductos.productos
     } else {
         CatalogoProductos.productos.filter { it.categoria == categoriaSeleccionada }
-    }
+    }.sortedBy { it.nombre }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
@@ -67,7 +73,7 @@ fun CatalogoScreen(
                 .fillMaxWidth()
                 .padding(bottom = 12.dp)
         ) {
-            items(CatalogoProductos.categorias) { categoria ->
+            items(categorias) { categoria ->
                 FilterChip(
                     selected = categoria == categoriaSeleccionada,
                     onClick = { categoriaSeleccionada = categoria },
