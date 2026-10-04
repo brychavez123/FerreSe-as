@@ -1,18 +1,41 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
+}
+
+// los datos para firmar el APK de release se leen de keystore.properties
+// (en la raiz del proyecto). ese archivo y el keystore estan en .gitignore,
+// asi las claves nunca quedan escritas aca ni se suben a GitHub.
+// si el archivo no existe, el release igual compila pero sin firmar
+val archivoFirma = rootProject.file("keystore.properties")
+val propiedadesFirma = Properties().apply {
+    if (archivoFirma.exists()) archivoFirma.inputStream().use { load(it) }
 }
 
 android {
     namespace = "cl.duoc.ferresenas"
     compileSdk = 37
 
+    signingConfigs {
+        if (archivoFirma.exists()) {
+            create("release") {
+                storeFile = rootProject.file(propiedadesFirma.getProperty("storeFile"))
+                storePassword = propiedadesFirma.getProperty("storePassword")
+                keyAlias = propiedadesFirma.getProperty("keyAlias")
+                keyPassword = propiedadesFirma.getProperty("keyPassword")
+            }
+        }
+    }
+
     defaultConfig {
         applicationId = "cl.duoc.ferresenas"
         minSdk = 24
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        // version 2: base de datos SQLite, sesion recordada y CRUD
+        versionCode = 2
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -22,6 +45,9 @@ android {
 
     buildTypes {
         release {
+            if (archivoFirma.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
