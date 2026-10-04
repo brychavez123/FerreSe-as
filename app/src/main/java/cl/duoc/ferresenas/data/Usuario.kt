@@ -13,7 +13,8 @@ enum class PreferenciaComunicacion {
 data class Usuario(
     val nombre: String,
     val correo: String,
-    val contrasena: String,
+    // nunca la contraseña tal cual, solo el hash (ver Seguridad.kt)
+    val hashContrasena: String,
     val preferenciaComunicacion: PreferenciaComunicacion,
     val recibirNotificaciones: Boolean
 )
@@ -32,11 +33,11 @@ val Usuario.prefiereEscuchar: Boolean
 
 object RepositorioUsuarios {
     val usuarios = mutableStateListOf(
-        Usuario("Valentina Muñoz", "valentina@ferresenas.cl", "1234", PreferenciaComunicacion.ESCRIBIR, true),
-        Usuario("Roberto Fernández", "roberto@ferresenas.cl", "1234", PreferenciaComunicacion.HABLAR, false),
-        Usuario("Camila Reyes", "camila@ferresenas.cl", "1234", PreferenciaComunicacion.AMBAS, true),
-        Usuario("Diego Castro", "diego@ferresenas.cl", "1234", PreferenciaComunicacion.ESCRIBIR, false),
-        Usuario("Javiera Morales", "javiera@ferresenas.cl", "1234", PreferenciaComunicacion.HABLAR, true)
+        Usuario("Valentina Muñoz", "valentina@ferresenas.cl", Seguridad.hashContrasena("1234"), PreferenciaComunicacion.ESCRIBIR, true),
+        Usuario("Roberto Fernández", "roberto@ferresenas.cl", Seguridad.hashContrasena("1234"), PreferenciaComunicacion.HABLAR, false),
+        Usuario("Camila Reyes", "camila@ferresenas.cl", Seguridad.hashContrasena("1234"), PreferenciaComunicacion.AMBAS, true),
+        Usuario("Diego Castro", "diego@ferresenas.cl", Seguridad.hashContrasena("1234"), PreferenciaComunicacion.ESCRIBIR, false),
+        Usuario("Javiera Morales", "javiera@ferresenas.cl", Seguridad.hashContrasena("1234"), PreferenciaComunicacion.HABLAR, true)
     )
 
     fun registrar(usuario: Usuario) {
@@ -54,7 +55,9 @@ object RepositorioUsuarios {
         usuarios.any { it.correo.equals(correo, ignoreCase = true) }
 
     fun validarCredenciales(correo: String, contrasena: String): Boolean =
-        usuarios.any { it.correo.equals(correo, ignoreCase = true) && it.contrasena == contrasena }
+        usuarios.any {
+            it.correo.equals(correo, ignoreCase = true) && Seguridad.verificarContrasena(contrasena, it.hashContrasena)
+        }
 
     fun buscarPorCorreo(correo: String): Usuario? =
         usuarios.find { it.correo.equals(correo, ignoreCase = true) }

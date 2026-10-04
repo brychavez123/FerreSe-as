@@ -37,6 +37,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import cl.duoc.ferresenas.data.PreferenciaComunicacion
 import cl.duoc.ferresenas.data.RepositorioUsuarios
+import cl.duoc.ferresenas.data.Seguridad
 import cl.duoc.ferresenas.data.SesionActual
 import cl.duoc.ferresenas.data.Usuario
 import cl.duoc.ferresenas.data.capitalizarPrimeraLetra
@@ -219,7 +220,7 @@ fun RegistroScreen(
                     val nuevoUsuario = Usuario(
                         nombre = nombre.capitalizarPrimeraLetra(),
                         correo = correo,
-                        contrasena = contrasena,
+                        hashContrasena = Seguridad.hashContrasena(contrasena),
                         preferenciaComunicacion = preferenciaSeleccionada,
                         recibirNotificaciones = recibirNotificaciones
                     )
