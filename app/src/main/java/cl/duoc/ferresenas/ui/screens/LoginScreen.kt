@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -27,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -94,13 +96,20 @@ fun LoginScreen(
 
         // Checklist: recordarme (si esta marcado, el ViewModel guarda el
         // correo en SharedPreferences, ver SesionGuardada.kt)
+        // toggleable en toda la fila, asi se puede tocar el texto tambien y
+        // no solo el cuadradito (mas facil de apretar)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 4.dp)
+                .toggleable(
+                    value = recordarme,
+                    onValueChange = { recordarme = it },
+                    role = Role.Checkbox
+                )
         ) {
-            Checkbox(checked = recordarme, onCheckedChange = { recordarme = it })
+            Checkbox(checked = recordarme, onCheckedChange = null)
             Text("Recordarme en este dispositivo")
         }
 

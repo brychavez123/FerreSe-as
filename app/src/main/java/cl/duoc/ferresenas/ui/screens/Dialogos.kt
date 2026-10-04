@@ -14,6 +14,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import cl.duoc.ferresenas.data.PreferenciasApp
 
@@ -68,15 +70,20 @@ fun DialogoEditarTexto(
     onCancelar: () -> Unit,
     minLineas: Int = 1
 ) {
-    var texto by remember { mutableStateOf(textoInicial) }
+    // TextFieldValue en vez de String para dejar el cursor al final del
+    // texto (si no queda al principio y es incomodo para agregar algo)
+    var valor by remember {
+        mutableStateOf(TextFieldValue(textoInicial, selection = TextRange(textoInicial.length)))
+    }
+    val texto = valor.text
 
     AlertDialog(
         onDismissRequest = onCancelar,
         title = { Text(titulo, style = MaterialTheme.typography.titleLarge) },
         text = {
             OutlinedTextField(
-                value = texto,
-                onValueChange = { texto = it },
+                value = valor,
+                onValueChange = { valor = it },
                 label = { Text(etiqueta) },
                 singleLine = minLineas == 1,
                 minLines = minLineas,
