@@ -1,25 +1,37 @@
 package cl.duoc.ferresenas.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,6 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.ferresenas.data.PreferenciaComunicacion
 import cl.duoc.ferresenas.data.SesionActual
 import cl.duoc.ferresenas.data.Usuario
+import cl.duoc.ferresenas.data.capitalizarPrimeraLetra
 import cl.duoc.ferresenas.data.masReciente
 import cl.duoc.ferresenas.data.vibrarConfirmacion
 import cl.duoc.ferresenas.ui.viewmodel.MensajesViewModel
@@ -45,6 +58,9 @@ fun PerfilScreen(
     // para el contador de mensajes y el ultimo mensaje
     LaunchedEffect(Unit) { mensajesViewModel.cargar() }
     val historial = mensajesViewModel.historial
+
+    var editandoNombre by remember { mutableStateOf(false) }
+    var confirmarEliminarCuenta by remember { mutableStateOf(false) }
 
     // el ViewModel lo guarda en la base y despues actualiza la sesion
     // actual, asi queda guardado para la proxima vez que inicie sesion
@@ -72,9 +88,15 @@ fun PerfilScreen(
         )
         Text(
             text = usuario?.correo ?: "",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(bottom = 24.dp)
+            style = MaterialTheme.typography.bodyMedium
         )
+        if (usuario != null) {
+            TextButton(onClick = { editandoNombre = true }) {
+                Icon(Icons.Filled.Edit, contentDescription = null)
+                Text("Editar nombre", modifier = Modifier.padding(start = 4.dp))
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Tabla simple con los datos del usuario
         Card(modifier = Modifier.fillMaxWidth()) {
@@ -164,6 +186,50 @@ fun PerfilScreen(
         ) {
             Text("Cerrar sesión")
         }
+
+        if (usuario != null) {
+            OutlinedButton(
+                onClick = { confirmarEliminarCuenta = true },
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
+            ) {
+                Icon(Icons.Filled.DeleteForever, contentDescription = null)
+                Text("Eliminar mi cuenta", modifier = Modifier.padding(start = 8.dp))
+            }
+        }
+    }
+
+    if (editandoNombre && usuario != null) {
+        DialogoEditarTexto(
+            titulo = "Editar nombre",
+            etiqueta = "Nombre completo",
+            textoInicial = usuario.nombre,
+            onGuardar = { nuevoNombre ->
+                actualizarUsuario(usuario.copy(nombre = nuevoNombre.capitalizarPrimeraLetra()))
+                editandoNombre = false
+            },
+            onCancelar = { editandoNombre = false }
+        )
+    }
+
+    if (confirmarEliminarCuenta) {
+        DialogoConfirmacion(
+            titulo = "¿Eliminar tu cuenta?",
+            mensaje = "Se borrarán tu cuenta y todos tus mensajes guardados de este dispositivo. " +
+                "Esta acción no se puede deshacer.",
+            textoConfirmar = "Eliminar cuenta",
+            onConfirmar = {
+                confirmarEliminarCuenta = false
+                sesionViewModel.eliminarCuenta {
+                    contexto.vibrarConfirmacion()
+                    Toast.makeText(contexto, "Tu cuenta fue eliminada", Toast.LENGTH_SHORT).show()
+                    onCerrarSesion()
+                }
+            },
+            onCancelar = { confirmarEliminarCuenta = false }
+        )
     }
 }
 
