@@ -69,6 +69,7 @@ fun ConstructorMensajeScreen(
 
     var mensajeGenerado by remember { mutableStateOf<String?>(null) }
     var errorCantidad by remember { mutableStateOf<String?>(null) }
+    AvisoDeError(mensajesViewModel.error) { mensajesViewModel.limpiarError() }
 
     Scaffold(
         topBar = {
@@ -177,36 +178,33 @@ fun ConstructorMensajeScreen(
 
         Button(
             onClick = {
-                // try/catch/finally aca, para que si la cantidad no es un
-                // numero valido no se caiga la app, solo marque el error
-                // en el campo
-                var seGeneroMensaje = false
-                try {
-                    val resultado = textoACantidadSegura(cantidad)
-                    val cantidadValida = resultado.getOrThrow()
-                    mensajeGenerado = construirMensaje(
-                        tipo = tipoSeleccionado,
-                        producto = producto,
-                        cantidad = cantidadValida.aTextoCantidad(),
-                        medida = medidaSeleccionada
-                    )
-                    // se guarda en SQLite en segundo plano (ver MensajesViewModel)
-                    mensajesViewModel.guardar(producto, mensajeGenerado!!)
-                    seGeneroMensaje = true
-                } catch (e: IllegalArgumentException) {
-                    mensajeGenerado = null
-                    errorCantidad = e.message ?: "Ingresa una cantidad válida."
-                } finally {
-                    if (seGeneroMensaje) {
+                // el try/catch/finally esta adentro de textoACantidadSegura
+                // (Utilidades.kt), que es donde de verdad puede fallar (pasar
+                // texto a numero). aca solo uso el Result que devuelve, asi no
+                // se repite el manejo del error dos veces
+                textoACantidadSegura(cantidad)
+                    .onSuccess { cantidadValida ->
+                        val mensaje = construirMensaje(
+                            tipo = tipoSeleccionado,
+                            producto = producto,
+                            cantidad = cantidadValida.aTextoCantidad(),
+                            medida = medidaSeleccionada
+                        )
+                        mensajeGenerado = mensaje
                         errorCantidad = null
+                        // se guarda en SQLite en segundo plano (ver MensajesViewModel)
+                        mensajesViewModel.guardar(producto, mensaje)
                         contexto.vibrarConfirmacion()
                         // si prefiere hablar (o ambas) se lo lee solo, sin
                         // que tenga que apretar el boton de escuchar
                         if (SesionActual.usuarioActual?.prefiereEscuchar == true) {
-                            LectorDeVoz.leer(mensajeGenerado!!)
+                            LectorDeVoz.leer(mensaje)
                         }
                     }
-                }
+                    .onFailure { e ->
+                        mensajeGenerado = null
+                        errorCantidad = e.message ?: "Ingresa una cantidad válida."
+                    }
             },
             modifier = Modifier
                 .fillMaxWidth()

@@ -43,6 +43,7 @@ fun MensajePersonalizadoScreen(
     var texto by remember { mutableStateOf("") }
     var mensajeGenerado by remember { mutableStateOf<String?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
+    AvisoDeError(mensajesViewModel.error) { mensajesViewModel.limpiarError() }
 
     Scaffold(
         topBar = {
@@ -96,10 +97,11 @@ fun MensajePersonalizadoScreen(
 
             Button(
                 onClick = {
-                    // reviso con try/catch que no venga vacio antes de pasar
-                    // a la pantalla completa
-                    try {
-                        require(texto.isNotBlank()) { "Escribe un mensaje antes de continuar." }
+                    // que no venga vacio es una validacion normal, no algo que
+                    // "falle", asi que basta con un if (antes era try/catch)
+                    if (texto.isBlank()) {
+                        error = "Escribe un mensaje antes de continuar."
+                    } else {
                         val mensajeListo = texto.trim()
                         mensajeGenerado = mensajeListo
                         mensajesViewModel.guardar(producto = null, mensaje = mensajeListo)
@@ -108,8 +110,6 @@ fun MensajePersonalizadoScreen(
                         if (SesionActual.usuarioActual?.prefiereEscuchar == true) {
                             LectorDeVoz.leer(mensajeListo)
                         }
-                    } catch (e: IllegalArgumentException) {
-                        error = e.message
                     }
                 },
                 modifier = Modifier

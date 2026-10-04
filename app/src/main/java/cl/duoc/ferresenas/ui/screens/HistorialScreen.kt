@@ -48,6 +48,7 @@ fun HistorialScreen(mensajesViewModel: MensajesViewModel = viewModel()) {
     // aparecen los mensajes que se generaron recien en el Constructor
     LaunchedEffect(Unit) { mensajesViewModel.cargar() }
     val historial = mensajesViewModel.historial
+    AvisoDeError(mensajesViewModel.error) { mensajesViewModel.limpiarError() }
 
     // que dialogo esta abierto (null = ninguno)
     var mensajeAEditar by remember { mutableStateOf<MensajeHistorial?>(null) }

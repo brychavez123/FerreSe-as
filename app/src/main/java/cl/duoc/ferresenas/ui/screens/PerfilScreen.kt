@@ -58,6 +58,7 @@ fun PerfilScreen(
     // para el contador de mensajes y el ultimo mensaje
     LaunchedEffect(Unit) { mensajesViewModel.cargar() }
     val historial = mensajesViewModel.historial
+    AvisoDeError(mensajesViewModel.error) { mensajesViewModel.limpiarError() }
 
     var editandoNombre by remember { mutableStateOf(false) }
     var confirmarEliminarCuenta by remember { mutableStateOf(false) }
@@ -65,7 +66,11 @@ fun PerfilScreen(
     // el ViewModel lo guarda en la base y despues actualiza la sesion
     // actual, asi queda guardado para la proxima vez que inicie sesion
     fun actualizarUsuario(nuevo: Usuario) {
-        sesionViewModel.actualizarPerfil(nuevo) { contexto.vibrarConfirmacion() }
+        sesionViewModel.actualizarPerfil(
+            nuevo,
+            onListo = { contexto.vibrarConfirmacion() },
+            onError = { Toast.makeText(contexto, it, Toast.LENGTH_LONG).show() }
+        )
     }
 
     Column(
@@ -222,11 +227,14 @@ fun PerfilScreen(
             textoConfirmar = "Eliminar cuenta",
             onConfirmar = {
                 confirmarEliminarCuenta = false
-                sesionViewModel.eliminarCuenta {
-                    contexto.vibrarConfirmacion()
-                    Toast.makeText(contexto, "Tu cuenta fue eliminada", Toast.LENGTH_SHORT).show()
-                    onCerrarSesion()
-                }
+                sesionViewModel.eliminarCuenta(
+                    onListo = {
+                        contexto.vibrarConfirmacion()
+                        Toast.makeText(contexto, "Tu cuenta fue eliminada", Toast.LENGTH_SHORT).show()
+                        onCerrarSesion()
+                    },
+                    onError = { Toast.makeText(contexto, it, Toast.LENGTH_LONG).show() }
+                )
             },
             onCancelar = { confirmarEliminarCuenta = false }
         )
