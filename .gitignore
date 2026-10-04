@@ -15,3 +15,5 @@ captures/
 keystore.properties
 *.jks
 *.keystore
+# salida del asistente de firma de Android Studio (APK y perfiles)
+/app/release/
