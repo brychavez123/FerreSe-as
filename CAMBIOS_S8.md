@@ -16,6 +16,8 @@ Cada etapa quedó en su propio commit de Git:
 | Ajustes | Arreglos encontrados al probar en el emulador |
 | Etapa 5 | Versión 2.0 y firma de release |
 | Etapa 6 | README y este documento |
+| Manejo de errores | try/catch solo donde puede fallar (retroalimentación S5) |
+| Voz a texto | El vendedor puede responder hablando (retroalimentación S5) |
 
 ---
 
@@ -279,7 +281,77 @@ actualizaciones firmadas con la misma clave.
 
 ---
 
-## 7. Capturas de pantalla sugeridas para el informe
+## 7. Respuesta a la retroalimentación de la Semana 5
+
+| Observación del profesor | Qué se hizo |
+|---|---|
+| Usuarios, catálogo y mensajes en memoria; se pierden al cerrar la app | Usuarios y mensajes ahora se guardan en SQLite (sección 1). El catálogo se dejó en código a propósito (ver abajo) |
+| Fortalecer la separación de responsabilidades | La app quedó en capas: pantallas → ViewModel → repositorio → `FerreSenasDbHelper`. Las pantallas ya no tocan los datos directamente (sección 2) |
+| Faltan texto a voz y voz a texto | Texto a voz ya existía (`LectorDeVoz.kt`, botón "Escuchar mensaje"). Se agregó **voz a texto** (abajo) |
+| Usar try/catch donde realmente pueda fallar, con errores específicos | Se agregó try/catch con `SQLiteException` en las operaciones de base y con `ActivityNotFoundException` en el reconocimiento de voz. Se quitaron dos try/catch que no eran necesarios (abajo) |
+
+### ¿Por qué el catálogo sigue en código?
+
+El catálogo es información **fija y de solo lectura**: el usuario no crea,
+edita ni borra productos. Lo que se pierde al cerrar la app, y había
+que persistir, es lo que genera el usuario: su cuenta y sus mensajes.
+La tabla `mensajes` guarda el `id` del producto y se cruza con el
+catálogo al leer. Si en el futuro la ferretería pudiera administrar
+sus productos, ahí sí convendría una tabla `productos`.
+
+### Voz a texto: archivo nuevo `ui/screens/RespuestaVendedor.kt`
+
+**Para qué sirve:** la persona sorda le muestra el mensaje al vendedor, y
+el vendedor **responde hablando**. La app muestra esa respuesta **escrita
+en grande**, así la comunicación funciona en los dos sentidos.
+
+**Cómo funciona:**
+
+- En la pantalla completa del mensaje hay un botón nuevo: **"Que el
+  vendedor responda hablando"**.
+- El botón abre el reconocedor de voz que trae Android
+  (`RecognizerIntent.ACTION_RECOGNIZE_SPEECH`) en español de Chile. No
+  necesita librerías ni pedir permiso de micrófono, porque el micrófono
+  lo maneja la app de voz del sistema.
+- La respuesta llega con `rememberLauncherForActivityResult` y se muestra
+  en una tarjeta con el texto en grande, respetando el tamaño de letra
+  elegido en Ajustes. Además el celular vibra para avisar que llegó.
+- Si no se entendió o el vendedor canceló, se muestra un aviso para
+  intentarlo de nuevo.
+
+### Manejo de errores: archivos `SesionViewModel.kt`, `MensajesViewModel.kt`, `ConstructorMensajeScreen.kt` y `MensajePersonalizadoScreen.kt`
+
+Siguiendo la recomendación, el try/catch se usa **solo donde algo puede
+fallar de verdad** y con la excepción específica:
+
+| Dónde | Qué puede fallar | Excepción |
+|---|---|---|
+| `textoACantidadSegura()` (se mantiene igual) | Convertir el texto de cantidad a número | `NumberFormatException` / `IllegalArgumentException` |
+| `SesionViewModel` (login, registro, recuperar, perfil, eliminar cuenta) | La base de datos (disco lleno, base bloqueada, etc.) | `SQLiteException` |
+| `MensajesViewModel.ejecutarEnBase()` | Lo mismo, para todas las operaciones del historial | `SQLiteException` |
+| `RespuestaVendedor.kt` | Que el celular no tenga app de reconocimiento de voz | `ActivityNotFoundException` |
+
+- En `SesionViewModel` el `finally` vuelve a habilitar el botón
+  (`cargando = false`) tanto si la consulta funcionó como si falló.
+- `ejecutarEnBase` es una **función de orden superior**: recibe la
+  operación como lambda y le pone el try/catch alrededor, así no se
+  repite el mismo bloque en guardar, editar, borrar, vaciar y cargar.
+- El error se le muestra al usuario con un Toast (`AvisoDeError` en
+  `Dialogos.kt`) en vez de que la app se cierre.
+
+**try/catch que se quitaron porque no correspondían:**
+
+- `ConstructorMensajeScreen`: tenía un try/catch alrededor de
+  `textoACantidadSegura`, que ya devuelve un `Result` con su propio
+  try/catch/finally adentro. Ahora usa directamente
+  `.onSuccess { }` / `.onFailure { }`.
+- `MensajePersonalizadoScreen`: usaba `require` + `catch` solo para
+  revisar que el texto no estuviera vacío. Es una validación normal, así
+  que ahora es un `if`.
+
+---
+
+## 8. Capturas de pantalla sugeridas para el informe
 
 **Persistencia y sesión**
 1. Login con el checkbox "Recordarme" marcado.
@@ -316,5 +388,13 @@ actualizaciones firmadas con la misma clave.
 18. Salida de `apksigner verify --verbose --print-certs` con `Verifies`.
 19. El archivo `app-release.apk` en la carpeta de salida.
 
+**Retroalimentación S5**
+20. Pantalla completa del mensaje con los botones "Escuchar mensaje" y
+    "Que el vendedor responda hablando".
+21. La ventana del reconocedor de voz abierta (hay que probarlo en un
+    celular real o en un emulador con micrófono).
+22. La tarjeta "El vendedor dijo: …" con la respuesta escrita.
+23. Fragmento de `SesionViewModel.kt` con el `try / catch (e: SQLiteException) / finally`.
+
 **Git**
-20. `git log --oneline` mostrando un commit por etapa.
+24. `git log --oneline` mostrando un commit por etapa.

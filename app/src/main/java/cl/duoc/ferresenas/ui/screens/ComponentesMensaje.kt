@@ -98,6 +98,9 @@ fun PantallaCompletaMensaje(
             Text("Escuchar mensaje", modifier = Modifier.padding(start = 8.dp))
         }
 
+        // y al reves, voz a texto: lo que responde el vendedor aparece escrito
+        RespuestaDelVendedor(modifier = Modifier.padding(bottom = 8.dp))
+
         Button(
             onClick = onEditar,
             modifier = Modifier.fillMaxWidth()

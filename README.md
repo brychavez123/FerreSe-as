@@ -41,6 +41,10 @@ o le lee en voz alta la propia aplicación, al vendedor.
 - **Lectura en voz alta (texto a voz)**: el mensaje se lee automáticamente
   si el usuario prefiere comunicarse hablando, y siempre está disponible
   con el botón "Escuchar mensaje".
+- **Voz a texto (respuesta del vendedor)**: desde la pantalla completa del
+  mensaje, el vendedor puede responder hablando y la app le muestra la
+  respuesta escrita en grande al usuario, con una vibración de aviso.
+  Usa el reconocedor de voz del sistema (`RecognizerIntent`).
 - **Historial** de mensajes guardado en la base de datos: se mantiene al
   cerrar la app y cada usuario ve solo los suyos. Se puede **editar** el
   texto de un mensaje, **borrar** uno o **vaciar** el historial.
@@ -78,7 +82,8 @@ o le lee en voz alta la propia aplicación, al vendedor.
 - **SharedPreferences** para las preferencias de accesibilidad y la
   sesión recordada
 - **PBKDF2** (`javax.crypto`) para el hash de contraseñas
-- **TextToSpeech** de Android para la lectura en voz alta
+- **TextToSpeech** de Android para la lectura en voz alta y
+  **RecognizerIntent** para el reconocimiento de voz (voz a texto)
 - **JUnit 4**, **AndroidX Test** y **Compose UI Test** para las pruebas
 - **Android Gradle Plugin 9.3.0** / **Gradle 9.7.1**
 
@@ -105,9 +110,16 @@ o le lee en voz alta la propia aplicación, al vendedor.
 - **Funciones y propiedades de extensión**: sobre `String`, `Int`,
   `Context`, `Usuario`, `List<Producto>` y `List<MensajeHistorial>`
   (`Utilidades.kt`, `Preferencias.kt`, `Accesibilidad.kt`, `Usuario.kt`).
-- **Manejo de errores y excepciones**: `try/catch/finally` en
-  `textoACantidadSegura()` para validar la cantidad ingresada sin que la
-  app se detenga.
+- **Manejo de errores y excepciones**, solo donde algo puede fallar de
+  verdad y con excepciones específicas:
+  - `try/catch/finally` en `textoACantidadSegura()` para convertir la
+    cantidad ingresada sin que la app se detenga.
+  - `SQLiteException` en los ViewModel para las operaciones de base de
+    datos; el `finally` vuelve a habilitar el botón.
+    `MensajesViewModel.ejecutarEnBase()` es una función de orden superior
+    que aplica ese try/catch a cada operación.
+  - `ActivityNotFoundException` si el celular no tiene reconocimiento de
+    voz.
 
 ## Usuarios de prueba
 
@@ -195,4 +207,5 @@ suben al repositorio**. Hay una plantilla en `keystore.properties.example`.
   una app real habría que enviar un código al correo antes de permitir el
   cambio.
 - La foto de perfil se mantiene solo mientras la app está abierta.
-- No incluye todavía voz a texto (dictado); solo lectura en voz alta.
+- El reconocimiento de voz depende de la app de voz del celular (en la
+  mayoría es la de Google) y puede requerir conexión a internet.
