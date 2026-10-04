@@ -11,17 +11,24 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import cl.duoc.ferresenas.data.RepositorioMensajes
+import androidx.lifecycle.viewmodel.compose.viewModel
+import cl.duoc.ferresenas.ui.viewmodel.MensajesViewModel
 
 /**
- * Tabla con el historial de mensajes visuales generados en la sesión,
+ * Tabla con el historial de mensajes visuales guardados en SQLite,
  * para que el usuario pueda volver a mostrarle uno al vendedor sin rehacerlo.
- * Solo muestra información propia de la sesión, no de otros usuarios.
+ * Solo muestra los mensajes del usuario con sesión activa, no de otros.
  */
 @Composable
-fun HistorialScreen() {
+fun HistorialScreen(mensajesViewModel: MensajesViewModel = viewModel()) {
+    // cada vez que se entra a la pestaña se vuelve a leer de la base, asi
+    // aparecen los mensajes que se generaron recien en el Constructor
+    LaunchedEffect(Unit) { mensajesViewModel.cargar() }
+    val historial = mensajesViewModel.historial
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -29,12 +36,12 @@ fun HistorialScreen() {
     ) {
         Text("Historial de mensajes", style = MaterialTheme.typography.headlineMedium)
         Text(
-            "Aquí quedan guardados los mensajes que has generado en esta sesión",
+            "Aquí quedan guardados los mensajes que has generado, aunque cierres la app",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
         )
 
-        if (RepositorioMensajes.historial.isEmpty()) {
+        if (historial.isEmpty()) {
             Text(
                 "Todavía no has generado ningún mensaje. Ve a Inicio y elige un producto.",
                 style = MaterialTheme.typography.bodyMedium
@@ -49,7 +56,7 @@ fun HistorialScreen() {
             HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
 
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                RepositorioMensajes.historial.forEach { item ->
+                historial.forEach { item ->
                     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                         Text(
                             item.producto?.let { "${it.emoji} ${it.nombre}" } ?: "✍️ Personalizado",

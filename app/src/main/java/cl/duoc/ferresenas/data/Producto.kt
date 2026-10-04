@@ -1,6 +1,7 @@
 package cl.duoc.ferresenas.data
 
-import androidx.compose.runtime.mutableStateListOf
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -81,6 +82,8 @@ fun construirMensaje(
 }
 
 data class MensajeHistorial(
+    // id de la fila en la tabla mensajes, para poder editarlo o borrarlo
+    val id: Long,
     // queda en null cuando el mensaje es de los personalizados (los que
     // el usuario escribe libre, no vienen de un producto del catalogo)
     val producto: Producto?,
@@ -88,13 +91,39 @@ data class MensajeHistorial(
     val fechaHora: String
 )
 
-/** Historial de mensajes visuales generados durante la sesión. */
-object RepositorioMensajes {
-    private val formato = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "CL"))
+/**
+ * Historial de mensajes visuales, ahora guardado en SQLite.
+ * Siempre se pide el correo para traer o tocar solo los mensajes de quien
+ * tiene la sesion abierta.
+ */
+class RepositorioMensajes(private val db: FerreSenasDbHelper) {
 
-    val historial = mutableStateListOf<MensajeHistorial>()
+    suspend fun historialDe(correo: String): List<MensajeHistorial> = withContext(Dispatchers.IO) {
+        // SimpleDateFormat no es seguro entre hilos, por eso uno por llamada
+        val formato = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "CL"))
+        db.mensajesDeUsuario(correo).map { fila ->
+            MensajeHistorial(
+                id = fila.id,
+                producto = fila.productoId?.let { CatalogoProductos.buscarPorId(it) },
+                mensaje = fila.texto,
+                fechaHora = formato.format(Date(fila.fecha))
+            )
+        }
+    }
 
-    fun agregar(producto: Producto?, mensaje: String) {
-        historial.add(0, MensajeHistorial(producto, mensaje, formato.format(Date())))
+    suspend fun agregar(correo: String, producto: Producto?, mensaje: String): Boolean = withContext(Dispatchers.IO) {
+        db.insertarMensaje(correo, producto?.id, mensaje) != -1L
+    }
+
+    suspend fun editar(correo: String, id: Long, nuevoTexto: String): Boolean = withContext(Dispatchers.IO) {
+        db.actualizarTextoMensaje(id, correo, nuevoTexto) > 0
+    }
+
+    suspend fun eliminar(correo: String, id: Long): Boolean = withContext(Dispatchers.IO) {
+        db.eliminarMensaje(id, correo) > 0
+    }
+
+    suspend fun vaciar(correo: String): Int = withContext(Dispatchers.IO) {
+        db.eliminarMensajesDeUsuario(correo)
     }
 }

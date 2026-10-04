@@ -19,29 +19,37 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.ferresenas.data.PreferenciaComunicacion
-import cl.duoc.ferresenas.data.RepositorioMensajes
-import cl.duoc.ferresenas.data.RepositorioUsuarios
 import cl.duoc.ferresenas.data.SesionActual
 import cl.duoc.ferresenas.data.Usuario
 import cl.duoc.ferresenas.data.masReciente
 import cl.duoc.ferresenas.data.vibrarConfirmacion
+import cl.duoc.ferresenas.ui.viewmodel.MensajesViewModel
+import cl.duoc.ferresenas.ui.viewmodel.SesionViewModel
 
 @Composable
-fun PerfilScreen(onCerrarSesion: () -> Unit) {
+fun PerfilScreen(
+    onCerrarSesion: () -> Unit,
+    sesionViewModel: SesionViewModel = viewModel(),
+    mensajesViewModel: MensajesViewModel = viewModel()
+) {
     val contexto = LocalContext.current
     val usuario = SesionActual.usuarioActual
 
-    // guardo el cambio en el arreglo de usuarios y en la sesion actual, asi
-    // queda guardado para la proxima vez que ese correo inicie sesion
+    // para el contador de mensajes y el ultimo mensaje
+    LaunchedEffect(Unit) { mensajesViewModel.cargar() }
+    val historial = mensajesViewModel.historial
+
+    // el ViewModel lo guarda en la base y despues actualiza la sesion
+    // actual, asi queda guardado para la proxima vez que inicie sesion
     fun actualizarUsuario(nuevo: Usuario) {
-        RepositorioUsuarios.actualizar(nuevo)
-        SesionActual.usuarioActual = nuevo
-        contexto.vibrarConfirmacion()
+        sesionViewModel.actualizarPerfil(nuevo) { contexto.vibrarConfirmacion() }
     }
 
     Column(
@@ -73,9 +81,9 @@ fun PerfilScreen(onCerrarSesion: () -> Unit) {
             Column(modifier = Modifier.padding(16.dp)) {
                 FilaDato("Preferencia de comunicación", usuario?.preferenciaComunicacion?.name ?: "-")
                 FilaDato("Notificaciones", if (usuario?.recibirNotificaciones == true) "Activadas" else "Desactivadas")
-                FilaDato("Mensajes generados", RepositorioMensajes.historial.size.toString())
+                FilaDato("Mensajes generados", historial.size.toString())
                 // masReciente esta en Utilidades.kt, es una extension de la lista
-                FilaDato("Último mensaje", RepositorioMensajes.historial.masReciente?.mensaje ?: "Ninguno todavía")
+                FilaDato("Último mensaje", historial.masReciente?.mensaje ?: "Ninguno todavía")
             }
         }
 
@@ -146,7 +154,8 @@ fun PerfilScreen(onCerrarSesion: () -> Unit) {
 
         Button(
             onClick = {
-                SesionActual.cerrarSesion()
+                // tambien borra el "Recordarme" guardado
+                sesionViewModel.cerrarSesion()
                 onCerrarSesion()
             },
             modifier = Modifier

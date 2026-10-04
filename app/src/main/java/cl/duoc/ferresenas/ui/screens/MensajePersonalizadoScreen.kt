@@ -23,18 +23,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.ferresenas.data.LectorDeVoz
-import cl.duoc.ferresenas.data.RepositorioMensajes
 import cl.duoc.ferresenas.data.SesionActual
 import cl.duoc.ferresenas.data.prefiereEscuchar
 import cl.duoc.ferresenas.data.vibrarConfirmacion
+import cl.duoc.ferresenas.ui.viewmodel.MensajesViewModel
 
 // esta pantalla es para cuando el usuario quiere preguntar algo que no
 // esta en el catalogo, puede escribir el mensaje que quiera a mano.
 // reutiliza la misma pantalla completa del Constructor de mensaje
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MensajePersonalizadoScreen(onVolver: () -> Unit) {
+fun MensajePersonalizadoScreen(
+    onVolver: () -> Unit,
+    mensajesViewModel: MensajesViewModel = viewModel()
+) {
     val contexto = LocalContext.current
     var texto by remember { mutableStateOf("") }
     var mensajeGenerado by remember { mutableStateOf<String?>(null) }
@@ -98,7 +102,7 @@ fun MensajePersonalizadoScreen(onVolver: () -> Unit) {
                         require(texto.isNotBlank()) { "Escribe un mensaje antes de continuar." }
                         val mensajeListo = texto.trim()
                         mensajeGenerado = mensajeListo
-                        RepositorioMensajes.agregar(producto = null, mensaje = mensajeListo)
+                        mensajesViewModel.guardar(producto = null, mensaje = mensajeListo)
                         contexto.vibrarConfirmacion()
                         // mismo comportamiento que en Constructor de mensaje
                         if (SesionActual.usuarioActual?.prefiereEscuchar == true) {

@@ -29,8 +29,8 @@ fun Int.aTextoCantidad(): String = if (this <= 0) "1" else toString()
 val List<Producto>.categoriasDisponibles: List<String>
     get() = map { it.categoria }.distinct().sortedBy { it }
 
-// esta es sobre List<MensajeHistorial>. como agregar() siempre mete el
-// mensaje nuevo al principio de la lista, el primero es el mas reciente
+// esta es sobre List<MensajeHistorial>. como la consulta a la base los
+// ordena por fecha descendente, el primero es el mas reciente
 val List<MensajeHistorial>.masReciente: MensajeHistorial?
     get() = firstOrNull()
 

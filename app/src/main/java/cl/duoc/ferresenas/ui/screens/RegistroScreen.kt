@@ -35,22 +35,21 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.ferresenas.data.PreferenciaComunicacion
-import cl.duoc.ferresenas.data.RepositorioUsuarios
-import cl.duoc.ferresenas.data.Seguridad
-import cl.duoc.ferresenas.data.SesionActual
-import cl.duoc.ferresenas.data.Usuario
 import cl.duoc.ferresenas.data.capitalizarPrimeraLetra
 import cl.duoc.ferresenas.data.ejecutarSi
 import cl.duoc.ferresenas.data.primerError
 import cl.duoc.ferresenas.data.vibrarConfirmacion
+import cl.duoc.ferresenas.ui.viewmodel.SesionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistroScreen(
     onRegistroExitoso: () -> Unit,
     onVolverLogin: () -> Unit,
-    onVerPoliticaPrivacidad: () -> Unit
+    onVerPoliticaPrivacidad: () -> Unit,
+    sesionViewModel: SesionViewModel = viewModel()
 ) {
     var nombre by remember { mutableStateOf("") }
     var correo by remember { mutableStateOf("") }
@@ -207,30 +206,33 @@ fun RegistroScreen(
         Button(
             onClick = {
                 // primerError esta en Utilidades.kt, corta apenas encuentra
-                // la primera validacion que falla
+                // la primera validacion que falla. lo de si el correo ya
+                // existe lo revisa el ViewModel contra la base de datos
                 val error = primerError(
                     (nombre.isNotBlank() && correo.isNotBlank() && contrasena.isNotBlank()) to
                         { "Completa todos los campos obligatorios." },
-                    aceptaTerminos to { "Debes aceptar los términos y condiciones." },
-                    (!RepositorioUsuarios.existeCorreo(correo)) to { "Ese correo ya está registrado." }
+                    (contrasena.length >= 4) to { "La contraseña debe tener al menos 4 caracteres." },
+                    aceptaTerminos to { "Debes aceptar los términos y condiciones." }
                 )
                 mensaje = error
 
                 ejecutarSi(error == null) {
-                    val nuevoUsuario = Usuario(
-                        nombre = nombre.capitalizarPrimeraLetra(),
-                        correo = correo,
-                        hashContrasena = Seguridad.hashContrasena(contrasena),
-                        preferenciaComunicacion = preferenciaSeleccionada,
-                        recibirNotificaciones = recibirNotificaciones
+                    sesionViewModel.registrar(
+                        nombre = nombre.trim().capitalizarPrimeraLetra(),
+                        correo = correo.trim(),
+                        contrasena = contrasena,
+                        preferencia = preferenciaSeleccionada,
+                        recibirNotificaciones = recibirNotificaciones,
+                        onExito = {
+                            contexto.vibrarConfirmacion()
+                            Toast.makeText(contexto, "Cuenta creada. ¡Bienvenido/a $nombre!", Toast.LENGTH_SHORT).show()
+                            onRegistroExitoso()
+                        },
+                        onError = { mensaje = it }
                     )
-                    RepositorioUsuarios.registrar(nuevoUsuario)
-                    SesionActual.usuarioActual = nuevoUsuario
-                    contexto.vibrarConfirmacion()
-                    Toast.makeText(contexto, "Cuenta creada. ¡Bienvenido/a $nombre!", Toast.LENGTH_SHORT).show()
-                    onRegistroExitoso()
                 }
             },
+            enabled = !sesionViewModel.cargando,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp)

@@ -36,9 +36,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.ferresenas.data.LectorDeVoz
 import cl.duoc.ferresenas.data.Producto
-import cl.duoc.ferresenas.data.RepositorioMensajes
 import cl.duoc.ferresenas.data.SesionActual
 import cl.duoc.ferresenas.data.TipoMensaje
 import cl.duoc.ferresenas.data.aTextoCantidad
@@ -46,12 +46,14 @@ import cl.duoc.ferresenas.data.construirMensaje
 import cl.duoc.ferresenas.data.prefiereEscuchar
 import cl.duoc.ferresenas.data.textoACantidadSegura
 import cl.duoc.ferresenas.data.vibrarConfirmacion
+import cl.duoc.ferresenas.ui.viewmodel.MensajesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConstructorMensajeScreen(
     producto: Producto,
-    onVolverCatalogo: () -> Unit
+    onVolverCatalogo: () -> Unit,
+    mensajesViewModel: MensajesViewModel = viewModel()
 ) {
     val contexto = LocalContext.current
     var cantidad by remember { mutableStateOf("1") }
@@ -188,7 +190,8 @@ fun ConstructorMensajeScreen(
                         cantidad = cantidadValida.aTextoCantidad(),
                         medida = medidaSeleccionada
                     )
-                    RepositorioMensajes.agregar(producto, mensajeGenerado!!)
+                    // se guarda en SQLite en segundo plano (ver MensajesViewModel)
+                    mensajesViewModel.guardar(producto, mensajeGenerado!!)
                     seGeneroMensaje = true
                 } catch (e: IllegalArgumentException) {
                     mensajeGenerado = null

@@ -30,14 +30,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import cl.duoc.ferresenas.data.RepositorioUsuarios
-import cl.duoc.ferresenas.data.SesionActual
+import androidx.lifecycle.viewmodel.compose.viewModel
+import cl.duoc.ferresenas.ui.viewmodel.SesionViewModel
 
 @Composable
 fun LoginScreen(
     onLoginExitoso: () -> Unit,
     onIrARegistro: () -> Unit,
-    onIrARecuperarContrasena: () -> Unit
+    onIrARecuperarContrasena: () -> Unit,
+    sesionViewModel: SesionViewModel = viewModel()
 ) {
     var correo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
@@ -91,7 +92,8 @@ fun LoginScreen(
                 .padding(top = 8.dp)
         )
 
-        // Checklist: recordarme
+        // Checklist: recordarme (si esta marcado, el ViewModel guarda el
+        // correo en SharedPreferences, ver SesionGuardada.kt)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -111,19 +113,26 @@ fun LoginScreen(
             )
         }
 
-        // Botón principal
+        // Botón principal. la consulta a la base la hace el ViewModel en
+        // segundo plano y avisa con onExito u onError
         Button(
             onClick = {
-                if (RepositorioUsuarios.validarCredenciales(correo, contrasena)) {
-                    SesionActual.usuarioActual = RepositorioUsuarios.buscarPorCorreo(correo)
-                    mensajeError = null
-                    Toast.makeText(contexto, "¡Bienvenido/a de nuevo!", Toast.LENGTH_SHORT).show()
-                    onLoginExitoso()
-                } else {
-                    mensajeError = "Correo o contraseña incorrectos. Verifica tus datos o regístrate."
-                    Toast.makeText(contexto, mensajeError, Toast.LENGTH_SHORT).show()
-                }
+                sesionViewModel.iniciarSesion(
+                    correo = correo,
+                    contrasena = contrasena,
+                    recordarme = recordarme,
+                    onExito = {
+                        mensajeError = null
+                        Toast.makeText(contexto, "¡Bienvenido/a de nuevo!", Toast.LENGTH_SHORT).show()
+                        onLoginExitoso()
+                    },
+                    onError = { error ->
+                        mensajeError = error
+                        Toast.makeText(contexto, error, Toast.LENGTH_SHORT).show()
+                    }
+                )
             },
+            enabled = !sesionViewModel.cargando,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp)

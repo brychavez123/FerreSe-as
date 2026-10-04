@@ -2,9 +2,10 @@ package cl.duoc.ferresenas.data
 
 import android.net.Uri
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 enum class PreferenciaComunicacion {
     ESCRIBIR, HABLAR, AMBAS
@@ -26,41 +27,53 @@ val Usuario.prefiereEscuchar: Boolean
         preferenciaComunicacion == PreferenciaComunicacion.AMBAS
 
 /**
- * Array con los datos de los usuarios.
- * Se precarga con 5 usuarios de prueba para poder iniciar sesión
- * sin tener que registrarse primero.
+ * Usuarios guardados en SQLite (antes era una lista en memoria).
+ * Los 5 usuarios de prueba ahora se precargan en FerreSenasDbHelper.onCreate.
+ * Todo corre en Dispatchers.IO para no trabar la pantalla.
  */
+class RepositorioUsuarios(private val db: FerreSenasDbHelper) {
 
-object RepositorioUsuarios {
-    val usuarios = mutableStateListOf(
-        Usuario("Valentina Muñoz", "valentina@ferresenas.cl", Seguridad.hashContrasena("1234"), PreferenciaComunicacion.ESCRIBIR, true),
-        Usuario("Roberto Fernández", "roberto@ferresenas.cl", Seguridad.hashContrasena("1234"), PreferenciaComunicacion.HABLAR, false),
-        Usuario("Camila Reyes", "camila@ferresenas.cl", Seguridad.hashContrasena("1234"), PreferenciaComunicacion.AMBAS, true),
-        Usuario("Diego Castro", "diego@ferresenas.cl", Seguridad.hashContrasena("1234"), PreferenciaComunicacion.ESCRIBIR, false),
-        Usuario("Javiera Morales", "javiera@ferresenas.cl", Seguridad.hashContrasena("1234"), PreferenciaComunicacion.HABLAR, true)
-    )
-
-    fun registrar(usuario: Usuario) {
-        usuarios.add(usuario)
+    // false si el correo ya estaba registrado. el hash se calcula aca
+    // adentro (en IO) porque PBKDF2 se demora un poco a proposito
+    suspend fun registrar(
+        nombre: String,
+        correo: String,
+        contrasena: String,
+        preferencia: PreferenciaComunicacion,
+        recibirNotificaciones: Boolean
+    ): Boolean = withContext(Dispatchers.IO) {
+        db.insertarUsuario(
+            Usuario(nombre, correo, Seguridad.hashContrasena(contrasena), preferencia, recibirNotificaciones)
+        )
     }
 
     // reemplaza los datos de un usuario que ya estaba registrado, por
     // ejemplo cuando cambia sus preferencias desde Perfil
-    fun actualizar(usuarioActualizado: Usuario) {
-        val indice = usuarios.indexOfFirst { it.correo.equals(usuarioActualizado.correo, ignoreCase = true) }
-        if (indice != -1) usuarios[indice] = usuarioActualizado
+    suspend fun actualizar(usuarioActualizado: Usuario): Boolean = withContext(Dispatchers.IO) {
+        db.actualizarUsuario(usuarioActualizado) > 0
     }
 
-    fun existeCorreo(correo: String): Boolean =
-        usuarios.any { it.correo.equals(correo, ignoreCase = true) }
+    suspend fun existeCorreo(correo: String): Boolean = withContext(Dispatchers.IO) {
+        db.buscarUsuario(correo) != null
+    }
 
-    fun validarCredenciales(correo: String, contrasena: String): Boolean =
-        usuarios.any {
-            it.correo.equals(correo, ignoreCase = true) && Seguridad.verificarContrasena(contrasena, it.hashContrasena)
-        }
+    // devuelve el usuario si el correo y la clave calzan, si no null
+    suspend fun validarCredenciales(correo: String, contrasena: String): Usuario? = withContext(Dispatchers.IO) {
+        db.buscarUsuario(correo)?.takeIf { Seguridad.verificarContrasena(contrasena, it.hashContrasena) }
+    }
 
-    fun buscarPorCorreo(correo: String): Usuario? =
-        usuarios.find { it.correo.equals(correo, ignoreCase = true) }
+    suspend fun buscarPorCorreo(correo: String): Usuario? = withContext(Dispatchers.IO) {
+        db.buscarUsuario(correo)
+    }
+
+    suspend fun cambiarContrasena(correo: String, nuevaContrasena: String): Boolean = withContext(Dispatchers.IO) {
+        db.actualizarHashContrasena(correo, Seguridad.hashContrasena(nuevaContrasena)) > 0
+    }
+
+    // sus mensajes se borran solos por el ON DELETE CASCADE
+    suspend fun eliminar(correo: String): Boolean = withContext(Dispatchers.IO) {
+        db.eliminarUsuario(correo) > 0
+    }
 }
 
 /** Usuario con sesión activa en la app (nulo si nadie ha iniciado sesión). */
@@ -73,5 +86,7 @@ object SesionActual {
     fun cerrarSesion() {
         usuarioActual = null
         fotoPerfilUri = null
+        // si habia marcado "Recordarme" tambien se olvida
+        SesionGuardada.borrar()
     }
 }
