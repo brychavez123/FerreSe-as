@@ -26,7 +26,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,22 +51,22 @@ fun RegistroScreen(
     onVerPoliticaPrivacidad: () -> Unit,
     sesionViewModel: SesionViewModel = viewModel()
 ) {
-    var nombre by remember { mutableStateOf("") }
-    var correo by remember { mutableStateOf("") }
-    var contrasena by remember { mutableStateOf("") }
-    var aceptaTerminos by remember { mutableStateOf(false) }
-    var recibirNotificaciones by remember { mutableStateOf(false) }
-    var mensaje by remember { mutableStateOf<String?>(null) }
+    var nombre by rememberSaveable { mutableStateOf("") }
+    var correo by rememberSaveable { mutableStateOf("") }
+    var contrasena by rememberSaveable { mutableStateOf("") }
+    var aceptaTerminos by rememberSaveable { mutableStateOf(false) }
+    var recibirNotificaciones by rememberSaveable { mutableStateOf(false) }
+    var mensaje by rememberSaveable { mutableStateOf<String?>(null) }
     val contexto = LocalContext.current
 
     // Combo box: preferencia de comunicación
-    var comboExpandido by remember { mutableStateOf(false) }
+    var comboExpandido by rememberSaveable { mutableStateOf(false) }
     val opcionesComunicacion = PreferenciaComunicacion.values().toList()
-    var preferenciaSeleccionada by remember { mutableStateOf(opcionesComunicacion.first()) }
+    var preferenciaSeleccionada by rememberSaveable { mutableStateOf(opcionesComunicacion.first()) }
 
     // Radio buttons: forma en la que prefiere recibir la respuesta del vendedor
     val opcionesRespuesta = listOf("Texto escrito en pantalla", "Mensaje con voz (texto a voz)")
-    var respuestaSeleccionada by remember { mutableStateOf(opcionesRespuesta.first()) }
+    var respuestaSeleccionada by rememberSaveable { mutableStateOf(opcionesRespuesta.first()) }
 
     Column(
         modifier = Modifier

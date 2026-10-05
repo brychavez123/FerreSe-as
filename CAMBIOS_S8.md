@@ -5,19 +5,21 @@ y cómo funciona cada parte. Antes, los usuarios y los mensajes vivían en
 listas en memoria y se perdían al cerrar la app. Ahora se guardan en una
 base de datos SQLite dentro del celular.
 
-Cada etapa quedó en su propio commit de Git:
+Cada parte quedó en su propio commit de Git, en este orden:
 
-| Commit | Etapa |
+| # | Commit |
 |---|---|
-| Etapa 1 | Base de datos SQLite y hash de contraseñas |
-| Etapa 2 | Conectar pantallas a SQLite con ViewModel y sesión recordada |
-| Etapa 3 | CRUD completo con diálogos de confirmación |
-| Etapa 4 | Pruebas unitarias e instrumentadas |
-| Ajustes | Arreglos encontrados al probar en el emulador |
-| Etapa 5 | Versión 2.0 y firma de release |
-| Etapa 6 | README y este documento |
-| Manejo de errores | try/catch solo donde puede fallar (retroalimentación S5) |
-| Voz a texto | El vendedor puede responder hablando (retroalimentación S5) |
+| 1 | Base de datos SQLite y hash de contraseñas |
+| 2 | Conectar pantallas a SQLite con ViewModel y sesión recordada |
+| 3 | CRUD completo con diálogos de confirmación |
+| 4 | Pruebas unitarias e instrumentadas |
+| 5 | Ajustes tras probar en el emulador |
+| 6 | Versión 2.0 y firma de release con keystore.properties |
+| 7 | Actualizar README y agregar CAMBIOS_S8.md |
+| 8 | Manejo de errores: try/catch solo donde puede fallar |
+| 9 | Voz a texto: el vendedor puede responder hablando |
+| 10 | Ignorar la carpeta app/release generada al firmar |
+| 11 | Adaptabilidad: rotación y pantallas horizontales |
 
 ---
 
@@ -348,6 +350,18 @@ fallar de verdad** y con la excepción específica:
 - `MensajePersonalizadoScreen`: usaba `require` + `catch` solo para
   revisar que el texto no estuviera vacío. Es una validación normal, así
   que ahora es un `if`.
+
+### Adaptabilidad a distintas pantallas: archivos `ComponentesMensaje.kt`, `CatalogoScreen.kt` y pantallas con formularios
+
+La restricción de la entrega pide que la app sea adaptativa a múltiples
+dispositivos. Al probarla con el celular en horizontal aparecieron tres
+problemas, que se corrigieron:
+
+| Problema | Corrección |
+|---|---|
+| Al girar el celular se perdía el mensaje generado y volvía al formulario (también se borraban los datos escritos en Login, Registro y Recuperar) | El estado de esas pantallas pasó de `remember` a `rememberSaveable`, que sobrevive a la rotación |
+| En horizontal el mensaje largo quedaba cortado | `PantallaCompletaMensaje` usa `BoxWithConstraints`: si la pantalla es más ancha que alta, el mensaje va a la izquierda y los botones a la derecha |
+| En horizontal el catálogo casi no dejaba ver productos | El título y los filtros se desplazan junto con la grilla, y la grilla usa `GridCells.Adaptive(160.dp)`: 2 columnas en un celular vertical y más en horizontal o tablet |
 
 ---
 

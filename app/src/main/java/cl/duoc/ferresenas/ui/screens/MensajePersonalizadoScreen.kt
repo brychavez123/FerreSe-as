@@ -18,7 +18,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -40,9 +40,9 @@ fun MensajePersonalizadoScreen(
     mensajesViewModel: MensajesViewModel = viewModel()
 ) {
     val contexto = LocalContext.current
-    var texto by remember { mutableStateOf("") }
-    var mensajeGenerado by remember { mutableStateOf<String?>(null) }
-    var error by remember { mutableStateOf<String?>(null) }
+    var texto by rememberSaveable { mutableStateOf("") }
+    var mensajeGenerado by rememberSaveable { mutableStateOf<String?>(null) }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
     AvisoDeError(mensajesViewModel.error) { mensajesViewModel.limpiarError() }
 
     Scaffold(

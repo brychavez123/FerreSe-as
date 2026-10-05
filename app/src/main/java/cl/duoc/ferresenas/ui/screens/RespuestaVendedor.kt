@@ -24,7 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -44,8 +44,8 @@ import cl.duoc.ferresenas.data.vibrarConfirmacion
 @Composable
 fun RespuestaDelVendedor(modifier: Modifier = Modifier) {
     val contexto = LocalContext.current
-    var respuesta by remember { mutableStateOf<String?>(null) }
-    var aviso by remember { mutableStateOf<String?>(null) }
+    var respuesta by rememberSaveable { mutableStateOf<String?>(null) }
+    var aviso by rememberSaveable { mutableStateOf<String?>(null) }
 
     val reconocedor = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()

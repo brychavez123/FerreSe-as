@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
@@ -54,43 +55,48 @@ fun CatalogoScreen(
         CatalogoProductos.productos.filter { it.categoria == categoriaSeleccionada }
     }.sortedBy { it.nombre }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(
-            "¿Qué necesitas hoy?",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-        Text(
-            "Selecciona un producto para armar tu mensaje",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-
-        // Acciones rápidas: filtro por categoría
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp)
-        ) {
-            items(categorias) { categoria ->
-                FilterChip(
-                    selected = categoria == categoriaSeleccionada,
-                    onClick = { categoriaSeleccionada = categoria },
-                    label = { Text(categoria) }
+    // Grilla de productos. Adaptive en vez de Fixed(2): pone tantas columnas
+    // como quepan (2 en un celular vertical, mas en horizontal o tablet).
+    // el titulo y los filtros van como primer item de la grilla para que
+    // se desplacen junto con los productos, si no en horizontal casi no
+    // quedaba espacio para ver la grilla
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 160.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
+    ) {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            Column(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    "¿Qué necesitas hoy?",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(bottom = 4.dp)
                 )
+                Text(
+                    "Selecciona un producto para armar tu mensaje",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+
+                // Acciones rápidas: filtro por categoría
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(categorias) { categoria ->
+                        FilterChip(
+                            selected = categoria == categoriaSeleccionada,
+                            onClick = { categoriaSeleccionada = categoria },
+                            label = { Text(categoria) }
+                        )
+                    }
+                }
             }
         }
 
-        // Grilla de productos
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(productosFiltrados) { producto ->
-                TarjetaProducto(producto = producto, onClick = { onProductoSeleccionado(producto) })
-            }
+        items(productosFiltrados) { producto ->
+            TarjetaProducto(producto = producto, onClick = { onProductoSeleccionado(producto) })
         }
     }
 }

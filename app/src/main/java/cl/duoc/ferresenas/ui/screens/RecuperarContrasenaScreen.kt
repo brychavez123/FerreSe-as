@@ -16,7 +16,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -36,10 +36,10 @@ fun RecuperarContrasenaScreen(
     sesionViewModel: SesionViewModel = viewModel()
 ) {
     val contexto = LocalContext.current
-    var correo by remember { mutableStateOf("") }
-    var nuevaContrasena by remember { mutableStateOf("") }
-    var confirmarContrasena by remember { mutableStateOf("") }
-    var mensaje by remember { mutableStateOf<String?>(null) }
+    var correo by rememberSaveable { mutableStateOf("") }
+    var nuevaContrasena by rememberSaveable { mutableStateOf("") }
+    var confirmarContrasena by rememberSaveable { mutableStateOf("") }
+    var mensaje by rememberSaveable { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier

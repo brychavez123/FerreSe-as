@@ -1,13 +1,19 @@
 package cl.duoc.ferresenas.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.CheckCircle
@@ -44,69 +50,109 @@ fun PantallaCompletaMensaje(
     paddingInterno: PaddingValues,
     onEditar: () -> Unit
 ) {
-    Column(
+    // con BoxWithConstraints veo si la pantalla esta mas ancha que alta
+    // (celular en horizontal o tablet). en ese caso pongo el mensaje a la
+    // izquierda y los botones a la derecha, porque si van uno debajo del
+    // otro el mensaje queda sin espacio y se corta
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingInterno)
             .padding(24.dp)
     ) {
-        // card fija en vez de Toast, para que no se pierda el mensaje si el
-        // usuario se demora en mirar la pantalla
-        Card(
-            colors = CardDefaults.cardColors(containerColor = VerdeExito.copy(alpha = 0.12f)),
-            border = BorderStroke(1.dp, VerdeExito),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.CheckCircle,
-                    contentDescription = "Confirmación",
-                    tint = VerdeExito
-                )
-                Text(
-                    "Mensaje generado correctamente. Muéstraselo al vendedor.",
-                    color = VerdeExito,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
+        if (maxWidth > maxHeight) {
+            val anchoBotones = maxWidth * 0.38f
+            Row(modifier = Modifier.fillMaxSize()) {
+                Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
+                    TarjetaConfirmacion()
+                    ZonaMensaje(mensaje, Modifier.weight(1f))
+                }
+                // los botones con scroll por si la respuesta del vendedor es larga
+                Column(
+                    modifier = Modifier
+                        .width(anchoBotones)
+                        .fillMaxHeight()
+                        .padding(start = 16.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    BotonesMensaje(mensaje, onEditar)
+                }
+            }
+        } else {
+            Column(modifier = Modifier.fillMaxSize()) {
+                TarjetaConfirmacion()
+                ZonaMensaje(mensaje, Modifier.weight(1f))
+                BotonesMensaje(mensaje, onEditar)
             }
         }
+    }
+}
 
-        // ocupa el espacio que queda libre y se va achicando solo si el
-        // mensaje es muy largo (ver MensajeAutoAjustable mas abajo)
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentAlignment = Alignment.Center
+// card fija en vez de Toast, para que no se pierda el mensaje si el
+// usuario se demora en mirar la pantalla
+@Composable
+private fun TarjetaConfirmacion() {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = VerdeExito.copy(alpha = 0.12f)),
+        border = BorderStroke(1.dp, VerdeExito),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            MensajeAutoAjustable(
-                texto = mensaje.capitalizarPrimeraLetra(),
-                tamanoMaximoSp = PreferenciasApp.tamanoMensajeSp * 1.6f,
-                tamanoMinimoSp = PreferenciasApp.tamanoMensajeSp.toFloat()
+            Icon(
+                imageVector = Icons.Filled.CheckCircle,
+                contentDescription = "Confirmación",
+                tint = VerdeExito
+            )
+            Text(
+                "Mensaje generado correctamente. Muéstraselo al vendedor.",
+                color = VerdeExito,
+                modifier = Modifier.padding(start = 8.dp)
             )
         }
+    }
+}
 
-        // este boton lo puede usar cualquiera, no solo los que prefieren hablar
-        TextButton(
-            onClick = { LectorDeVoz.leer(mensaje) },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Icon(imageVector = Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null)
-            Text("Escuchar mensaje", modifier = Modifier.padding(start = 8.dp))
-        }
+// ocupa el espacio que queda libre y se va achicando solo si el
+// mensaje es muy largo (ver MensajeAutoAjustable mas abajo)
+@Composable
+private fun ZonaMensaje(mensaje: String, modifier: Modifier) {
+    Box(
+        modifier = modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        MensajeAutoAjustable(
+            texto = mensaje.capitalizarPrimeraLetra(),
+            tamanoMaximoSp = PreferenciasApp.tamanoMensajeSp * 1.6f,
+            // el minimo es mas chico que antes para que en horizontal entre
+            // completo en vez de cortarse
+            tamanoMinimoSp = PreferenciasApp.tamanoMensajeSp * 0.7f
+        )
+    }
+}
 
-        // y al reves, voz a texto: lo que responde el vendedor aparece escrito
-        RespuestaDelVendedor(modifier = Modifier.padding(bottom = 8.dp))
+@Composable
+private fun BotonesMensaje(mensaje: String, onEditar: () -> Unit) {
+    // este boton lo puede usar cualquiera, no solo los que prefieren hablar
+    TextButton(
+        onClick = { LectorDeVoz.leer(mensaje) },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Icon(imageVector = Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null)
+        Text("Escuchar mensaje", modifier = Modifier.padding(start = 8.dp))
+    }
 
-        Button(
-            onClick = onEditar,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Editar mensaje")
-        }
+    // y al reves, voz a texto: lo que responde el vendedor aparece escrito
+    RespuestaDelVendedor(modifier = Modifier.padding(bottom = 8.dp))
+
+    Button(
+        onClick = onEditar,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text("Editar mensaje")
     }
 }
 

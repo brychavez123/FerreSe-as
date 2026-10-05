@@ -28,7 +28,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,19 +56,19 @@ fun ConstructorMensajeScreen(
     mensajesViewModel: MensajesViewModel = viewModel()
 ) {
     val contexto = LocalContext.current
-    var cantidad by remember { mutableStateOf("1") }
+    var cantidad by rememberSaveable { mutableStateOf("1") }
 
-    var comboExpandido by remember { mutableStateOf(false) }
-    var medidaSeleccionada by remember { mutableStateOf(producto.unidadesMedida.first()) }
+    var comboExpandido by rememberSaveable { mutableStateOf(false) }
+    var medidaSeleccionada by rememberSaveable { mutableStateOf(producto.unidadesMedida.first()) }
 
     val tiposMensaje = listOf(
         TipoMensaje.NECESITO_COMPRAR to "Quiero comprar este producto",
         TipoMensaje.CONSULTA_DISPONIBILIDAD to "Solo quiero preguntar si hay disponible"
     )
-    var tipoSeleccionado by remember { mutableStateOf(tiposMensaje.first().first) }
+    var tipoSeleccionado by rememberSaveable { mutableStateOf(tiposMensaje.first().first) }
 
-    var mensajeGenerado by remember { mutableStateOf<String?>(null) }
-    var errorCantidad by remember { mutableStateOf<String?>(null) }
+    var mensajeGenerado by rememberSaveable { mutableStateOf<String?>(null) }
+    var errorCantidad by rememberSaveable { mutableStateOf<String?>(null) }
     AvisoDeError(mensajesViewModel.error) { mensajesViewModel.limpiarError() }
 
     Scaffold(
